@@ -1,0 +1,51 @@
+
+/* Mission UI */
+.mission-text {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #000;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.mission-complete-popup {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 204, 0, 0.9);
+  color: #000;
+  padding: 20px 40px;
+  border-radius: 12px;
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(255, 204, 0, 0.8);
+  z-index: 1000;
+  pointer-events: none;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  white-space: pre-line;
+}
+
+.mission-complete-popup.fade-out {
+  animation: popOut 0.5s forwards;
+}
+
+@keyframes popIn {
+  from { transform: translate(-50%, -100%) scale(0.5); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes popOut {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to { transform: translate(-50%, -100%) scale(0.8); opacity: 0; }
+}

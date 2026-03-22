@@ -1,0 +1,218 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.85);
+  font-family: 'Rajdhani', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: white;
+}
+
+#game-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+#ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s;
+}
+
+.screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 5, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* HUD elements */
+#hud-playing {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: none;
+  display: block;
+}
+
+.hud-top-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-shadow: 2px 2px 4px #000;
+}
+
+.hud-top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+  text-shadow: 2px 2px 4px #000;
+}
+
+#speedometer {
+  font-size: 36px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+#speedometer small { font-size: 16px; }
+
+#score {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ffcc00;
+}
+
+.bar-bg {
+  width: 150px;
+  height: 12px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 6px;
+  margin-top: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.bar-fill {
+  width: 100%;
+  height: 100%;
+  background: #00ffaa;
+  transition: width 0.1s linear;
+}
+
+.bar-fill.nitro { background: #00aaff; }
+
+/* Menus */
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 72px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #fff;
+  text-shadow: 0 0 20px #00aaff, 0 0 40px #0055ff;
+}
+
+p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  text-align: center;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+button {
+  padding: 15px 40px;
+  font-size: 24px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(45deg, #0055ff, #00aaff);
+  color: #fff;
+  border: 2px solid #00aaff;
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease-out;
+}
+
+button:hover {
+  background: linear-gradient(45deg, #00aaff, #00ffff); 
+  transform: scale(1.05); 
+  box-shadow: 0 0 25px rgba(0, 170, 255, 0.8);
+}
+button:active { transform: scale(0.95); }
+button:disabled { opacity: 0.5; pointer-events: none; }
+
+#bike-list button {
+  font-size: 16px;
+  padding: 8px 16px;
+}
+
+/* Mission UI */
+.mission-text {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 204, 0, 0.5);
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #000;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.mission-complete-popup {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid #ffcc00;
+  backdrop-filter: blur(4px);
+  color: #ffcc00;
+  padding: 20px 40px;
+  border-radius: 12px;
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+  z-index: 1000;
+  pointer-events: none;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  white-space: pre-line;
+}
+
+.mission-complete-popup.fade-out {
+  animation: popOut 0.5s forwards;
+}
+
+@keyframes popIn {
+  from { transform: translate(-50%, -100%) scale(0.5); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes popOut {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to { transform: translate(-50%, -100%) scale(0.8); opacity: 0; }
+}

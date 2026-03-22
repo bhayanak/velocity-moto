@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏍️</text></svg>">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Velocity Moto</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/css/main.css">
+  </head>
+  <body>
+    <!-- 3D Canvas Container -->
+    <div id="game-container"></div>
+    
+    <!-- UI Overlay (HUD) -->
+    <div id="ui-layer">
+      <div id="hud-playing" class="screen">
+        <div id="mission-text" class="mission-text"></div>
+        <div class="hud-top-left">
+          <div id="speedometer"><span id="speed-val">0</span> <small>km/h</small></div>
+          <div id="fuel-gauge">Fuel: <div class="bar-bg"><div class="bar-fill" id="fuel-fill"></div></div></div>
+        </div>
+        <div class="hud-top-right">
+          <div id="score">Score: <span id="score-val">0</span></div>
+          <div id="coins" style="color:#ffcc00; font-weight:bold; font-size: 20px;">Coins: <span id="coins-val">0</span></div>
+          <div id="nitro-gauge">Nitro: <div class="bar-bg"><div class="bar-fill nitro" id="nitro-fill"></div></div></div>
+        </div>
+      </div>
+      
+      <!-- Menus (Main, Game Over, etc.) -->
+      <div id="menu-start" class="screen active" style="
+        justify-content: flex-start; 
+        padding-top: 10vh; 
+        background-color: #000;
+        background-image: 
+          linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%),
+          url('https://images.unsplash.com/photo-1558981420-c532902e58b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+      ">
+        <h1 style="font-size: 110px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0; text-shadow: 0 0 30px rgba(0, 170, 255, 0.8), 0 0 10px rgba(0, 85, 255, 0.8), 0 8px 0 #002255, 0 15px 20px rgba(0,0,0,0.5); color: white;">VELOCITY MOTO</h1>
+        <div style="font-family: 'Rajdhani', sans-serif; font-size: 28px; color: #ffcc00; letter-spacing: 4px; text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); margin-bottom: auto;">THE ULTIMATE HIGHWAY RUSH</div>
+        
+        <div style="margin-bottom: 8vh; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+          <button id="btn-start" style="font-size: 32px; padding: 20px 80px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); box-shadow: 0 0 20px rgba(0, 170, 255, 0.4), inset 0 0 10px rgba(255,255,255,0.2);">START MISSION</button>
+          
+          <div style="display: flex; gap: 15px;">
+            <button id="btn-garage" style="background: linear-gradient(45deg, #1a1a2e, #2a2a4a); border: 2px solid #4a4a7a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">GARAGE / BIKES</button>
+            <button id="btn-missions" style="background: linear-gradient(45deg, #2e1a2e, #4a2a2a); border: 2px solid #7a4a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">MISSIONS</button>
+            <button id="btn-tracks" style="background: linear-gradient(45deg, #1a2e1a, #2a4a2a); border: 2px solid #4a7a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">TRACKS</button>
+          </div>
+          
+          <div style="margin-top: 15px; font-size: 26px; font-family: 'Orbitron', sans-serif; color: #ffcc00; text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 8px; border: 1px solid rgba(255,204,0,0.3);">
+            BANK: <span id="menu-coins" style="color: white;">0</span> COINS
+          </div>
+        </div>
+        
+        <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; color: rgba(255,255,255,0.7); font-size: 16px; text-shadow: 1px 1px 2px #000; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;">
+          <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span> to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[SPACE]</span> Nitro &nbsp;&bull;&nbsp; <span style="color:#fff">[SHIFT]</span> Brake</p>
+        </div>
+      </div>
+
+      <div id="menu-garage" class="screen hidden">
+        <h1>GARAGE</h1>
+        <div style="margin-bottom: 20px; font-weight: bold; color: #ffcc00;">Total Coins: <span id="garage-coins">0</span></div>
+        <div id="bike-list" style="display:flex; gap:10px; margin-bottom:20px;"></div>
+        <button id="btn-garage-back">BACK TO MENU</button>
+      </div>
+
+      <!-- Tracks Menu -->
+      <div id="menu-tracks" class="screen hidden" style="background-color: rgba(0, 30, 0, 0.9);">
+        <h1 style="color: #55ff55; text-shadow: 0 0 10px #00ff00;">SELECT TRACK</h1>
+        <div style="margin-bottom: 20px; font-weight: bold; color: #ffcc00;">Total Coins: <span id="tracks-coins">0</span></div>
+        <div id="track-list" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; margin-bottom:40px; max-width: 800px;"></div>
+        <button id="btn-tracks-back" style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px;">BACK TO MENU</button>
+      </div>
+
+      <!-- Missions Menu -->
+      <div id="menu-missions" class="screen hidden" style="background-color: rgba(20, 0, 20, 0.9);">
+        <h1 style="color: #ff55ff; text-shadow: 0 0 10px #ff00ff;">MISSION BOARD</h1>
+        <div style="background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 1px solid #770077; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 40px; min-width: 400px;">
+          <h2 style="margin: 0; color: #fff;">ACTIVE MISSION</h2>
+          <p id="mission-board-title" style="font-size: 24px; color: #00ffff; margin: 10px 0;">Loading...</p>
+          <div style="width: 100%; height: 25px; background: #222; border: 2px solid #555; border-radius: 12px; overflow: hidden; position: relative;">
+            <div id="mission-board-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); transition: width 0.3s;"></div>
+            <div id="mission-board-progress-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-family: monospace; text-shadow: 1px 1px 2px #000;">0 / 0</div>
+          </div>
+          <p style="margin: 0; color: #ffcc00; font-size: 20px; margin-top: 10px;">Reward: <span id="mission-board-reward">0</span> Coins</p>
+        </div>
+        <button id="btn-missions-back" style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px;">BACK TO MENU</button>
+      </div>
+
+      <div id="menu-gameover" class="screen hidden" style="
+        background-color: #000;
+        background-image: linear-gradient(180deg, rgba(200, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.9) 100%);
+      ">
+        <h1 style="font-size: 80px; color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.8); margin-bottom: 20px;">CRASHED!</h1>
+        <div style="background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 1px solid #550000; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 40px;">
+          <p style="font-size: 32px; margin: 0; color: white;">Final Score: <span id="final-score" style="color: #00aaff; font-weight: bold;">0</span></p>
+          <p style="font-size: 28px; margin: 0; color: white;">Coins Collected: <span id="final-coins" style="color: #ffcc00; font-weight: bold;">0</span></p>
+        </div>
+        <div style="display: flex; gap: 20px;">
+          <button id="btn-restart" style="padding: 20px 50px; font-size: 28px; background: linear-gradient(45deg, #aa0000, #ff3333); border: 2px solid #ffaaaa; box-shadow: 0 0 20px rgba(255,0,0,0.5);">RETRY RACE</button>
+          <button id="btn-to-main" style="padding: 20px 50px; font-size: 24px; background: linear-gradient(45deg, #222, #444); border: 2px solid #666;">MAIN MENU</button>
+        </div>
+      </div>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
