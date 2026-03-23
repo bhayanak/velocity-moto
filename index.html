@@ -51,6 +51,8 @@
             <button id="btn-garage" style="background: linear-gradient(45deg, #1a1a2e, #2a2a4a); border: 2px solid #4a4a7a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">GARAGE / BIKES</button>
             <button id="btn-missions" style="background: linear-gradient(45deg, #2e1a2e, #4a2a2a); border: 2px solid #7a4a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">MISSIONS</button>
             <button id="btn-tracks" style="background: linear-gradient(45deg, #1a2e1a, #2a4a2a); border: 2px solid #4a7a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">TRACKS</button>
+            <button id="btn-daily"
+              style="background: linear-gradient(45deg, #2e2e1a, #4a4a2a); border: 2px solid #7a7a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">DAILY</button>
           </div>
           
           <div style="margin-top: 15px; font-size: 26px; font-family: 'Orbitron', sans-serif; color: #ffcc00; text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 8px; border: 1px solid rgba(255,204,0,0.3);">
@@ -104,6 +106,17 @@
   
   <button id="btn-missions-back" style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px; margin-top:30px;">BACK TO MENU</button>
 </div>
+
+      <!-- Daily Rewards Menu -->
+      <div id="menu-daily" class="screen hidden" style="background-color: rgba(20, 20, 0, 0.95);">
+        <h1 style="color: #ffcc00; text-shadow: 0 0 10px #ffaa00; margin-bottom: 10px;">DAILY REWARDS</h1>
+        <div id="daily-content"
+          style="display:flex; flex-direction:column; gap:20px; max-width:900px; width:95%; max-height:70vh; overflow-y:auto;">
+        </div>
+        <button id="btn-daily-back"
+          style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px; margin-top:20px;">BACK
+          TO MENU</button>
+      </div>
 
       <div id="menu-gameover" class="screen hidden" style="
         background-color: #000;

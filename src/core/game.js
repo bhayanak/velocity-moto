@@ -14,6 +14,7 @@ import { TRACKS } from '../data/tracks.js';
 import { updateHUD, showGameOver, updateMissionHUD, showMissionComplete } from '../ui/hud.js';
 import { Director } from '../gameplay/director.js';
 import { MissionManager } from '../gameplay/missions.js';
+import { DailyRewardManager } from '../gameplay/daily-rewards.js';
 
 export class Game {
   constructor(container) {
@@ -43,6 +44,7 @@ export class Game {
     
     this.director = new Director();
     this.missionManager = new MissionManager(this.saveData);
+    this.dailyManager = new DailyRewardManager(this.saveData);
     
     this.score = 0;
     this.distance = 0;
@@ -102,6 +104,7 @@ export class Game {
   
   gameOver() {
     this.missionManager.updateProgress('crash', 1);
+    this.dailyManager.updateDailyTaskProgress('crash', 1);
 
     this.isRunning = false;
     this.audio.stopEngine();
@@ -189,6 +192,7 @@ export class Game {
     if (passedCars > 0) {
       const completed = this.missionManager.updateProgress('overtake', passedCars);
       if (completed) showMissionComplete(completed);
+      this.dailyManager.updateDailyTaskProgress('overtake', passedCars);
     }
     this.pickupManager.update(dt, playerZ);
     this.hazardManager.update(dt, playerZ);
@@ -234,6 +238,7 @@ export class Game {
         this.audio.playCoinSound();
         const completed = this.missionManager.updateProgress('coin', 1);
         if (completed) showMissionComplete(completed);
+        this.dailyManager.updateDailyTaskProgress('coin', 1);
       }
     });
 
@@ -244,6 +249,7 @@ export class Game {
     
     const distCompleted = this.missionManager.updateProgress('distance', distDelta);
     if (distCompleted) showMissionComplete(distCompleted);
+    this.dailyManager.updateDailyTaskProgress('distance', distDelta);
     
     // Update audio engine pitch
     this.audio.updateEngine(this.player.speed, this.player.topSpeed, (inputState.nitro && this.player.nitro > 0 && this.player.speed > 20));

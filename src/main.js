@@ -415,4 +415,162 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // ── DAILY REWARDS ──
+  document.getElementById('btn-daily').addEventListener('click', () => {
+    document.getElementById('menu-start').classList.remove('active');
+    document.getElementById('menu-start').classList.add('hidden');
+    document.getElementById('menu-daily').classList.remove('hidden');
+    document.getElementById('menu-daily').classList.add('active');
+    playBtnClick();
+    renderDaily();
+  });
+
+  document.getElementById('btn-daily-back').addEventListener('click', () => {
+    document.getElementById('menu-daily').classList.remove('active');
+    document.getElementById('menu-daily').classList.add('hidden');
+    document.getElementById('menu-start').classList.remove('hidden');
+    document.getElementById('menu-start').classList.add('active');
+    playBtnClick();
+    updateMenuCoins();
+  });
+
+  function renderDaily() {
+    const container = document.getElementById('daily-content');
+    container.innerHTML = '';
+    const dm = game.dailyManager;
+
+    // ── Login Reward Section ──
+    const login = dm.getLoginStatus();
+    const loginDiv = document.createElement('div');
+    loginDiv.style.cssText = 'background: rgba(0,0,0,0.6); border: 1px solid #ffcc00; border-radius: 12px; padding: 20px;';
+    loginDiv.innerHTML = `
+      <h2 style="color:#ffcc00; margin:0 0 10px 0; font-size:22px;">LOGIN REWARD</h2>
+      <p style="color:#aaa; margin:0 0 10px 0; font-size:14px;">Day ${login.dayInCycle} of 7 &nbsp;|&nbsp; Streak: ${login.streak} days</p>
+      <div style="display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap;">
+        ${[1, 2, 3, 4, 5, 6, 7].map(d => {
+      const isToday = d === login.dayInCycle;
+      const isPast = d < login.dayInCycle || login.alreadyClaimed;
+      const bg = isToday && !login.alreadyClaimed ? '#ffcc00' : isToday && login.alreadyClaimed ? '#448844' : isPast ? '#334433' : '#222';
+      const color = isToday && !login.alreadyClaimed ? '#000' : isPast ? '#88aa88' : '#666';
+      const rewards = [100, 150, 200, 300, 500, 750, 1500];
+      return '<div style="width:70px; text-align:center; padding:8px 4px; border-radius:8px; background:' + bg + '; color:' + color + '; font-size:12px; border:1px solid ' + (isToday ? '#ffcc00' : '#333') + ';"><div style="font-weight:bold;">Day ' + d + '</div><div>' + rewards[d - 1] + '</div></div>';
+    }).join('')}
+      </div>
+      ${login.canClaim
+        ? '<button id="btn-claim-login" style="background:linear-gradient(45deg,#cc9900,#ffcc00); color:#000; border:none; padding:12px 30px; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer;">CLAIM ' + login.reward.coins + ' COINS</button>'
+        : '<div style="color:#88aa88; font-size:16px; font-weight:bold;">Already claimed today!</div>'}
+    `;
+    container.appendChild(loginDiv);
+
+    if (login.canClaim) {
+      loginDiv.querySelector('#btn-claim-login').addEventListener('click', () => {
+        playBtnClick();
+        dm.claimLoginReward();
+        updateMenuCoins();
+        renderDaily();
+      });
+    }
+
+    // ── Streak Milestones ──
+    const milestones = dm.getStreakMilestones();
+    const streakDiv = document.createElement('div');
+    streakDiv.style.cssText = 'background: rgba(0,0,0,0.6); border: 1px solid #ff8800; border-radius: 12px; padding: 20px;';
+    streakDiv.innerHTML = `
+      <h2 style="color:#ff8800; margin:0 0 10px 0; font-size:22px;">STREAK MILESTONES</h2>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        ${milestones.map(m => {
+      const canClaim = m.reached && !m.claimed;
+      const bg = m.claimed ? '#334433' : canClaim ? '#442200' : '#1a1a1a';
+      const border = canClaim ? '#ff8800' : m.claimed ? '#336633' : '#333';
+      return '<div style="padding:12px 16px; border-radius:8px; background:' + bg + '; border:1px solid ' + border + '; text-align:center; min-width:100px;">'
+        + '<div style="color:' + (m.claimed ? '#88aa88' : canClaim ? '#ffcc00' : '#555') + '; font-size:13px; font-weight:bold;">' + m.label + '</div>'
+        + '<div style="color:' + (m.claimed ? '#668866' : '#aaa') + '; font-size:16px; margin:4px 0;">' + m.coins + '</div>'
+        + (canClaim ? '<button class="btn-claim-streak" data-days="' + m.days + '" style="background:#ff8800; color:#000; border:none; padding:6px 14px; border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer; margin-top:4px;">CLAIM</button>'
+          : m.claimed ? '<div style="color:#668866; font-size:11px;">Claimed</div>'
+            : '<div style="color:#444; font-size:11px;">' + m.days + ' days</div>')
+        + '</div>';
+    }).join('')}
+      </div>
+    `;
+    container.appendChild(streakDiv);
+
+    streakDiv.querySelectorAll('.btn-claim-streak').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        playBtnClick();
+        const days = parseInt(e.target.getAttribute('data-days'));
+        dm.claimStreakMilestone(days);
+        updateMenuCoins();
+        renderDaily();
+      });
+    });
+
+    // ── Daily Tasks ──
+    const tasks = dm.getDailyTasks();
+    const taskDiv = document.createElement('div');
+    taskDiv.style.cssText = 'background: rgba(0,0,0,0.6); border: 1px solid #00ccff; border-radius: 12px; padding: 20px;';
+    let taskHtml = '<h2 style="color:#00ccff; margin:0 0 10px 0; font-size:22px;">DAILY TASKS</h2>';
+    taskHtml += '<p style="color:#667; font-size:12px; margin:0 0 10px 0;">Refreshes daily. Bonus tasks have higher rewards!</p>';
+
+    tasks.forEach(t => {
+      const pct = Math.min(100, Math.floor((t.progress / t.target) * 100));
+      const done = t.completed;
+      const redeemed = t.redeemed;
+      const barColor = t.isBonus ? 'linear-gradient(90deg, #ff8800, #ffcc00)' : 'linear-gradient(90deg, #0088ff, #00ccff)';
+      const borderColor = redeemed ? '#336633' : done ? '#00ff88' : t.isBonus ? '#ff8800' : '#00ccff';
+
+      taskHtml += '<div style="background:rgba(0,0,0,0.4); border:1px solid ' + borderColor + '; padding:14px; border-radius:8px; margin-bottom:10px;">';
+      taskHtml += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">';
+      taskHtml += '<span style="color:' + (redeemed ? '#668866' : done ? '#00ff88' : t.isBonus ? '#ffcc00' : '#00ccff') + '; font-size:16px; font-weight:bold;">' + t.title + '</span>';
+      taskHtml += '<span style="color:#ffcc00; font-size:14px;">' + t.reward + ' Coins</span>';
+      taskHtml += '</div>';
+      taskHtml += '<div style="width:100%; height:14px; background:rgba(255,255,255,0.08); border-radius:7px; overflow:hidden; position:relative;">';
+      taskHtml += '<div style="width:' + pct + '%; height:100%; background:' + (redeemed ? '#336633' : barColor) + '; transition:width 0.3s;"></div>';
+      taskHtml += '<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:10px; font-weight:bold; text-shadow:1px 1px 2px #000;">' + (redeemed ? 'REDEEMED' : done ? 'COMPLETE!' : Math.floor(t.progress) + ' / ' + t.target) + '</div>';
+      taskHtml += '</div>';
+      if (done && !redeemed) {
+        taskHtml += '<button class="btn-redeem-daily" data-task-id="' + t.id + '" style="background:linear-gradient(45deg,#00cc66,#00ff88); color:#000; border:none; padding:8px 20px; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer; margin-top:8px;">REDEEM</button>';
+      }
+      taskHtml += '</div>';
+    });
+
+    taskDiv.innerHTML = taskHtml;
+    container.appendChild(taskDiv);
+
+    taskDiv.querySelectorAll('.btn-redeem-daily').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        playBtnClick();
+        const taskId = parseInt(e.target.getAttribute('data-task-id'));
+        dm.redeemDailyTask(taskId);
+        updateMenuCoins();
+        renderDaily();
+      });
+    });
+  }
+
+  // Show daily reward popup on first load if claimable
+  setTimeout(() => {
+    const dm = game.dailyManager;
+    const login = dm.getLoginStatus();
+    if (login.canClaim) {
+      const popup = document.createElement('div');
+      popup.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999; background:rgba(0,0,0,0.95); border:2px solid #ffcc00; border-radius:16px; padding:30px 40px; text-align:center; animation:fadeIn 0.3s;';
+      popup.innerHTML = `
+        <h2 style="color:#ffcc00; margin:0 0 10px;">Daily Reward Available!</h2>
+        <p style="color:#aaa; font-size:16px; margin:0 0 20px;">Day ${login.dayInCycle} — ${login.reward.label}</p>
+        <button id="btn-popup-claim" style="background:linear-gradient(45deg,#cc9900,#ffcc00); color:#000; border:none; padding:12px 30px; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; margin-right:10px;">CLAIM NOW</button>
+        <button id="btn-popup-close" style="background:#333; color:#aaa; border:1px solid #555; padding:12px 20px; border-radius:8px; font-size:14px; cursor:pointer;">Later</button>
+      `;
+      document.body.appendChild(popup);
+      popup.querySelector('#btn-popup-claim').addEventListener('click', () => {
+        playBtnClick();
+        dm.claimLoginReward();
+        updateMenuCoins();
+        popup.remove();
+      });
+      popup.querySelector('#btn-popup-close').addEventListener('click', () => {
+        popup.remove();
+      });
+    }
+  }, 1000);
 });

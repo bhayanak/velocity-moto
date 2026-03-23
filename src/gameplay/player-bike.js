@@ -61,10 +61,10 @@ export class PlayerBike {
 
     // ── Per-bike config ──
     const configs = {
-      starter: { forkAngle: -0.35, tankW: 0.28, tankH: 0.65, tankSlant: 0, rearW: 0.22, barY: 0.88, barZ: -0.55, riderLean: Math.PI / 10, seatZ: 0.25, seatY: 0.58 },
-      cruiser: { forkAngle: -0.55, tankW: 0.38, tankH: 0.8, tankSlant: 0, rearW: 0.35, barY: 1.05, barZ: -0.35, riderLean: Math.PI / 14, seatZ: 0.35, seatY: 0.52 },
-      sport: { forkAngle: -0.3, tankW: 0.32, tankH: 0.6, tankSlant: 0.3, rearW: 0.24, barY: 0.78, barZ: -0.6, riderLean: Math.PI / 3.5, seatZ: 0.2, seatY: 0.58 },
-      superbike: { forkAngle: -0.25, tankW: 0.34, tankH: 0.55, tankSlant: 0.35, rearW: 0.3, barY: 0.72, barZ: -0.65, riderLean: Math.PI / 3, seatZ: 0.15, seatY: 0.58 },
+      starter: { forkAngle: -0.35, tankW: 0.18, tankH: 0.38, tankSlant: 0, rearW: 0.22, barY: 0.88, barZ: -0.55, riderLean: Math.PI / 10, seatZ: 0.25, seatY: 0.58 },
+      cruiser: { forkAngle: -0.55, tankW: 0.22, tankH: 0.45, tankSlant: 0, rearW: 0.35, barY: 1.05, barZ: -0.35, riderLean: Math.PI / 14, seatZ: 0.35, seatY: 0.52 },
+      sport: { forkAngle: -0.3, tankW: 0.20, tankH: 0.35, tankSlant: 0.3, rearW: 0.24, barY: 0.78, barZ: -0.6, riderLean: Math.PI / 3.5, seatZ: 0.2, seatY: 0.58 },
+      superbike: { forkAngle: -0.25, tankW: 0.22, tankH: 0.32, tankSlant: 0.35, rearW: 0.3, barY: 0.72, barZ: -0.65, riderLean: Math.PI / 3, seatZ: 0.15, seatY: 0.58 },
     };
     const c = configs[bikeId] || configs.starter;
 
@@ -117,6 +117,27 @@ export class PlayerBike {
       fork.position.set(x, 0.58, -0.75);
       fork.rotation.x = c.forkAngle;
       this.bikeGroup.add(fork);
+    });
+
+    // ── Front Fender ──
+    const ffLen = 0.4;
+    const fFender = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, ffLen), bodyMat);
+    fFender.position.set(0, 0.5, -0.92);
+    fFender.rotation.x = -0.15;
+    this.bikeGroup.add(fFender);
+
+    // ── Rear Fender ──
+    const rFender = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.03, 0.4), bodyMat);
+    rFender.position.set(0, rwRad + 0.12, 0.6);
+    rFender.rotation.x = -0.1;
+    this.bikeGroup.add(rFender);
+
+    // ── Foot Pegs ──
+    [-0.18, 0.18].forEach(x => {
+      const peg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.08), chromeMat);
+      peg.rotation.z = Math.PI / 2;
+      peg.position.set(x, 0.15, 0.0);
+      this.bikeGroup.add(peg);
     });
 
     // ── Rear Swingarm ──
@@ -270,25 +291,25 @@ export class PlayerBike {
     }
 
     // ── Handlebars ──
-    const barW = bikeId === 'cruiser' ? 0.9 : 0.7;
+    const barW = bikeId === 'cruiser' ? 0.65 : 0.52;
     const handleBar = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, barW), chromeMat);
     handleBar.rotation.z = Math.PI / 2;
     handleBar.position.set(0, c.barY, c.barZ);
     this.bikeGroup.add(handleBar);
-    const gripHalfW = bikeId === 'cruiser' ? 0.45 : 0.35;
+    const gripHalfW = bikeId === 'cruiser' ? 0.32 : 0.26;
     [-gripHalfW, gripHalfW].forEach(x => {
-      const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.12), darkMat);
+      const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.1), darkMat);
       grip.rotation.z = Math.PI / 2;
       grip.position.set(x, c.barY, c.barZ);
       this.bikeGroup.add(grip);
     });
     // Mirrors
-    [-gripHalfW - 0.04, gripHalfW + 0.04].forEach(x => {
-      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.12), chromeMat);
-      arm.position.set(x, c.barY + 0.06, c.barZ);
+    [-gripHalfW - 0.03, gripHalfW + 0.03].forEach(x => {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.1), chromeMat);
+      arm.position.set(x, c.barY + 0.05, c.barZ);
       this.bikeGroup.add(arm);
-      const mirror = new THREE.Mesh(new THREE.CircleGeometry(0.04, 8), new THREE.MeshPhongMaterial({ color: 0x555588, shininess: 100, side: THREE.DoubleSide }));
-      mirror.position.set(x, c.barY + 0.12, c.barZ);
+      const mirror = new THREE.Mesh(new THREE.CircleGeometry(0.035, 8), new THREE.MeshPhongMaterial({ color: 0x555588, shininess: 100, side: THREE.DoubleSide }));
+      mirror.position.set(x, c.barY + 0.1, c.barZ);
       mirror.rotation.x = -0.3;
       this.bikeGroup.add(mirror);
     });
@@ -342,58 +363,96 @@ export class PlayerBike {
 
     const riderGroup = new THREE.Group();
 
-    // Torso
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.38, 0.18), suitMat);
-    torso.position.set(0, 0.82, c.seatZ);
+    // Compute rider anchor from seat
+    const hipY = c.seatY + 0.04;
+    const hipZ = c.seatZ;
+
+    // Torso — pivots forward from hips
+    const torsoH = 0.34;
+    const torsoOffZ = -Math.sin(c.riderLean) * torsoH * 0.5;
+    const torsoOffY = Math.cos(c.riderLean) * torsoH * 0.5;
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.28, torsoH, 0.16), suitMat);
+    torso.position.set(0, hipY + torsoOffY, hipZ + torsoOffZ);
     torso.rotation.x = c.riderLean;
     riderGroup.add(torso);
 
-    // Arms
-    [-0.2, 0.2].forEach(x => {
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.28, 0.08), suitMat);
-      arm.position.set(x, 0.85, c.seatZ - 0.12);
-      arm.rotation.x = c.riderLean + 0.4;
-      riderGroup.add(arm);
+    // Shoulder position (top of torso)
+    const shoulderY = hipY + torsoOffY + Math.cos(c.riderLean) * torsoH * 0.45;
+    const shoulderZ = hipZ + torsoOffZ - Math.sin(c.riderLean) * torsoH * 0.45;
+
+    // Upper arms — from shoulders toward handlebar grips
+    [-gripHalfW, gripHalfW].forEach(x => {
+      const dx = x;
+      const dy = c.barY - 0.02 - shoulderY;
+      const dz = c.barZ - shoulderZ;
+      const armLen = Math.sqrt(dy * dy + dz * dz) * 0.55;
+      const midY = shoulderY + dy * 0.5;
+      const midZ = shoulderZ + dz * 0.5;
+      const armAngle = Math.atan2(-dz, dy);
+      const upperArm = new THREE.Mesh(new THREE.BoxGeometry(0.07, armLen, 0.07), suitMat);
+      upperArm.position.set(dx * 0.6, midY, midZ);
+      upperArm.rotation.x = armAngle;
+      riderGroup.add(upperArm);
     });
-    [-0.2, 0.2].forEach(x => {
-      const fa = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.25, 0.07), suitMat);
-      fa.position.set(x, 0.84, c.barZ + 0.15);
-      fa.rotation.x = -0.6;
+    // Forearms — reach to grips
+    [-gripHalfW, gripHalfW].forEach(x => {
+      const elbY = shoulderY + (c.barY - 0.02 - shoulderY) * 0.5;
+      const elbZ = shoulderZ + (c.barZ - shoulderZ) * 0.5;
+      const dy = c.barY - 0.02 - elbY;
+      const dz = c.barZ - elbZ;
+      const faLen = Math.sqrt(dy * dy + dz * dz);
+      const fa = new THREE.Mesh(new THREE.BoxGeometry(0.065, faLen, 0.065), suitMat);
+      fa.position.set(x, elbY + dy * 0.5, elbZ + dz * 0.5);
+      fa.rotation.x = Math.atan2(-dz, dy);
       riderGroup.add(fa);
     });
+    // Hands on grips
     [-gripHalfW, gripHalfW].forEach(x => {
-      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), darkMat);
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), darkMat);
       hand.position.set(x, c.barY - 0.02, c.barZ);
       riderGroup.add(hand);
     });
 
-    // Legs
+    // Thighs — from hips forward/down to knee area beside engine
+    const kneeY = 0.38;
+    const kneeZ = hipZ - 0.22;
     [-0.09, 0.09].forEach(x => {
-      const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.3), suitMat);
-      thigh.position.set(x, 0.56, c.seatZ - 0.05);
+      const dy = kneeY - hipY;
+      const dz = kneeZ - hipZ;
+      const thighLen = Math.sqrt(dy * dy + dz * dz);
+      const thigh = new THREE.Mesh(new THREE.BoxGeometry(0.1, thighLen, 0.1), suitMat);
+      thigh.position.set(x, hipY + dy * 0.5, hipZ + dz * 0.5);
+      thigh.rotation.x = Math.atan2(-dz, dy);
       riderGroup.add(thigh);
     });
+    // Shins — from knees down to pegs
+    const pegY = 0.16;
+    const pegZ = kneeZ + 0.05;
     [-0.1, 0.1].forEach(x => {
-      const shin = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 0.1), suitMat);
-      shin.position.set(x, 0.4, c.seatZ - 0.2);
-      shin.rotation.x = 0.2;
+      const dy = pegY - kneeY;
+      const dz = pegZ - kneeZ;
+      const shinLen = Math.sqrt(dy * dy + dz * dz);
+      const shin = new THREE.Mesh(new THREE.BoxGeometry(0.08, shinLen, 0.08), suitMat);
+      shin.position.set(x, kneeY + dy * 0.5, kneeZ + dz * 0.5);
+      shin.rotation.x = Math.atan2(-dz, dy);
       riderGroup.add(shin);
     });
+    // Boots on foot pegs
     [-0.1, 0.1].forEach(x => {
-      const boot = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.16), bootMat);
-      boot.position.set(x, 0.24, c.seatZ - 0.28);
+      const boot = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.06, 0.14), bootMat);
+      boot.position.set(x, pegY - 0.02, pegZ + 0.02);
       riderGroup.add(boot);
     });
 
     // Helmet
-    const headY = (bikeId === 'sport' || bikeId === 'superbike') ? 1.02 : 1.1;
-    const headZ = (bikeId === 'sport' || bikeId === 'superbike') ? c.seatZ - 0.08 : c.seatZ + 0.02;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 12), helmetMat);
+    const headY = shoulderY + 0.18;
+    const headZ = shoulderZ + 0.02;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), helmetMat);
     head.position.set(0, headY, headZ);
     riderGroup.add(head);
     // Visor
-    const visor = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.07), new THREE.MeshPhongMaterial({ color: 0x111122, shininess: 100, transparent: true, opacity: 0.85 }));
-    visor.position.set(0, headY - 0.02, headZ - 0.115);
+    const visor = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.06), new THREE.MeshPhongMaterial({ color: 0x111122, shininess: 100, transparent: true, opacity: 0.85 }));
+    visor.position.set(0, headY - 0.02, headZ - 0.105);
     visor.rotation.x = -c.riderLean * 0.3;
     riderGroup.add(visor);
 
@@ -402,11 +461,12 @@ export class PlayerBike {
 
     // ── Dashboard HUD ──
     this.hudCanvas = document.createElement('canvas');
-    this.hudCanvas.width = 256;
-    this.hudCanvas.height = 128;
+    this.hudCanvas.width = 320;
+    this.hudCanvas.height = 160;
     this.hudCtx = this.hudCanvas.getContext('2d');
     this.dashTexture = new THREE.CanvasTexture(this.hudCanvas);
-    const dash = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.14), new THREE.MeshBasicMaterial({ map: this.dashTexture }));
+    this.dashTexture.minFilter = THREE.LinearFilter;
+    const dash = new THREE.Mesh(new THREE.PlaneGeometry(0.30, 0.16), new THREE.MeshBasicMaterial({ map: this.dashTexture, transparent: true }));
     dash.position.set(0, c.barY - 0.06, c.barZ + 0.08);
     dash.rotation.x = -Math.PI / 4;
     this.bikeGroup.add(dash);
@@ -537,41 +597,152 @@ export class PlayerBike {
   updateDashboard() {
     if (!this.hudCtx) return;
     const ctx = this.hudCtx;
+    const W = 320, H = 160;
 
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, 256, 128);
-    ctx.strokeStyle = '#334455';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, 252, 124);
+    // Background
+    ctx.fillStyle = '#080810';
+    ctx.fillRect(0, 0, W, H);
 
+    // Outer bezel
+    ctx.strokeStyle = '#2a3a4a';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(1, 1, W - 2, H - 2);
+
+    // ── Speedometer Arc (left half) ──
+    const cx = 90, cy = 100, r = 60;
+    const startAngle = Math.PI * 0.8;
+    const endAngle = Math.PI * 2.2;
+    const speedKmh = Math.floor(this.speed * 2.5);
+    const maxKmh = 500;
+    const speedRatio = Math.min(1, speedKmh / maxKmh);
+
+    // Tick marks
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10;
+      const angle = startAngle + t * (endAngle - startAngle);
+      const inner = r - 8;
+      const outer = r - (i % 5 === 0 ? 0 : 4);
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+      ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
+      ctx.strokeStyle = t <= speedRatio ? '#00ffcc' : '#333';
+      ctx.lineWidth = i % 5 === 0 ? 2 : 1;
+      ctx.stroke();
+
+      // Labels at major ticks
+      if (i % 5 === 0 || i === 2 || i === 4 || i === 6 || i === 8) {
+        const labelR = r - 16;
+        const lx = cx + Math.cos(angle) * labelR;
+        const ly = cy + Math.sin(angle) * labelR;
+        ctx.font = '8px sans-serif';
+        ctx.fillStyle = '#667';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${Math.round(t * maxKmh)}`, lx, ly);
+      }
+    }
+
+    // Speed arc glow
     ctx.beginPath();
-    ctx.moveTo(128, 10);
-    ctx.lineTo(128, 118);
-    ctx.strokeStyle = '#223344';
-    ctx.lineWidth = 2;
+    ctx.arc(cx, cy, r - 3, startAngle, startAngle + speedRatio * (endAngle - startAngle));
+    ctx.strokeStyle = speedRatio > 0.8 ? '#ff3333' : speedRatio > 0.5 ? '#ffaa00' : '#00ffcc';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
     ctx.stroke();
 
-    ctx.font = 'bold 36px sans-serif';
+    // Needle
+    const needleAngle = startAngle + speedRatio * (endAngle - startAngle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(needleAngle) * (r - 12), cy + Math.sin(needleAngle) * (r - 12));
+    ctx.strokeStyle = '#ff3333';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff3333';
+    ctx.fill();
+
+    // Digital speed readout
+    ctx.font = 'bold 20px sans-serif';
     ctx.fillStyle = '#00ffcc';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${Math.floor(this.speed * 2.5)}`, 64, 45);
+    ctx.fillText(`${speedKmh}`, cx, cy + 28);
+    ctx.font = '8px sans-serif';
+    ctx.fillStyle = '#556';
+    ctx.fillText('KM/H', cx, cy + 40);
 
-    ctx.font = 'bold 14px sans-serif';
-    ctx.fillStyle = '#888888';
-    ctx.fillText('KM/H', 64, 80);
+    // ── Vertical Bars (right side) ──
+    const barX = 195;
+    const barTop = 18;
+    const barH = 110;
+    const barW = 22;
+    const gap = 38;
 
-    ctx.fillStyle = '#aaaaaa';
-    ctx.fillText('FUEL', 192, 30);
+    // FUEL bar
+    const fp = Math.max(0, Math.min(1, this.fuel));
+    this._drawVertBar(ctx, barX, barTop, barW, barH, fp,
+      fp > 0.5 ? '#00dd44' : fp > 0.2 ? '#ddcc00' : '#ff2222', 'F');
 
-    ctx.fillStyle = '#222222';
-    ctx.fillRect(172, 45, 40, 60);
-    
-    const fp = Math.max(0, this.fuel);
-    ctx.fillStyle = fp > 0.5 ? '#00ff00' : fp > 0.2 ? '#ffff00' : '#ff0000';
-    const fh = 56 * fp;
-    ctx.fillRect(174, 47 + (56 - fh), 36, fh);
-    
+    // NITRO bar
+    const np = Math.max(0, Math.min(1, this.nitro));
+    this._drawVertBar(ctx, barX + gap, barTop, barW, barH, np,
+      np > 0.5 ? '#00aaff' : '#8844ff', 'N');
+
+    // GEAR indicator (simulated from speed)
+    const gear = this.speed < 5 ? 'N' : this.speed < 25 ? '1' : this.speed < 45 ? '2' : this.speed < 65 ? '3' : this.speed < 90 ? '4' : this.speed < 115 ? '5' : '6';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillStyle = '#ffcc00';
+    ctx.textAlign = 'center';
+    ctx.fillText(gear, barX + gap * 2 + 5, barTop + barH / 2);
+    ctx.font = '7px sans-serif';
+    ctx.fillStyle = '#665';
+    ctx.fillText('GEAR', barX + gap * 2 + 5, barTop + barH / 2 + 16);
+
     this.dashTexture.needsUpdate = true;
+  }
+
+  _drawVertBar(ctx, x, y, w, h, pct, color, label) {
+    // Background
+    ctx.fillStyle = '#151520';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#2a2a3a';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+
+    // Fill from bottom
+    const fillH = h * pct;
+    const grad = ctx.createLinearGradient(x, y + h, x, y + h - fillH);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, color + '66');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x + 2, y + h - fillH, w - 4, fillH);
+
+    // Segment lines
+    for (let i = 1; i < 5; i++) {
+      const sy = y + (h / 5) * i;
+      ctx.beginPath();
+      ctx.moveTo(x + 2, sy);
+      ctx.lineTo(x + w - 2, sy);
+      ctx.strokeStyle = '#222233';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Label
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillStyle = '#aaa';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, x + w / 2, y + h + 3);
+
+    // Percentage
+    ctx.font = '8px sans-serif';
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`${Math.round(pct * 100)}`, x + w / 2, y - 1);
   }
 }
