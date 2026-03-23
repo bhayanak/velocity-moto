@@ -216,3 +216,6 @@ button:disabled { opacity: 0.5; pointer-events: none; }
   from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   to { transform: translate(-50%, -100%) scale(0.8); opacity: 0; }
 }
+
+.no-bg { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.no-bg { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }

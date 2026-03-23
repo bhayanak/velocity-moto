@@ -31,6 +31,11 @@ export class KeyboardInput {
     if (this.keys.hasOwnProperty(e.key)) {
       this.keys[e.key] = true;
     }
+    // Also capture C for camera globally
+    if (e.key === 'c' || e.key === 'C') {
+      const event = new CustomEvent('toggle-camera');
+      window.dispatchEvent(event);
+    }
   }
 
   onKeyUp(e) {

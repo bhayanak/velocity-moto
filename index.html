@@ -59,16 +59,32 @@
         </div>
         
         <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; color: rgba(255,255,255,0.7); font-size: 16px; text-shadow: 1px 1px 2px #000; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;">
-          <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span> to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[SPACE]</span> Nitro &nbsp;&bull;&nbsp; <span style="color:#fff">[SHIFT]</span> Brake</p>
+          <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span> to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[C]</span> View to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[SPACE]</span> Nitro &nbsp;&bull;&nbsp; <span style="color:#fff">[SHIFT]</span> Brake</p>
         </div>
       </div>
 
-      <div id="menu-garage" class="screen hidden">
-        <h1>GARAGE</h1>
-        <div style="margin-bottom: 20px; font-weight: bold; color: #ffcc00;">Total Coins: <span id="garage-coins">0</span></div>
-        <div id="bike-list" style="display:flex; gap:10px; margin-bottom:20px;"></div>
-        <button id="btn-garage-back">BACK TO MENU</button>
-      </div>
+      <div id="menu-garage" class="screen hidden no-bg">
+  <div style="position: absolute; top: 20px; left: 20px;">
+    <h1 style="margin: 0; text-shadow: 0 0 10px #ffcc00; font-size: 52px; text-align: left;">GARAGE</h1>
+    <button id="btn-garage-back" style="margin-top: 10px; width: 220px; font-size: 18px;">BACK TO MENU</button>
+  </div>
+
+  <div style="position: absolute; top: 20px; right: 20px; font-weight: bold; color: #ffcc00; font-size: 24px; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 8px; border: 1px solid #ffcc00;">
+    BANK: <span id="garage-coins">0</span> COINS
+  </div>
+
+  <button id="btn-prev-bike" style="position: absolute; top: 50%; left: 5%; transform: translateY(-50%); font-size: 32px; width: 60px; height: 60px; border-radius: 50%; padding: 0;">&lt;</button>
+
+  <button id="btn-next-bike" style="position: absolute; top: 50%; right: 400px; transform: translateY(-50%); font-size: 32px; width: 60px; height: 60px; border-radius: 50%; padding: 0;">&gt;</button>
+
+  <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);">
+    <div style="color:white; margin-bottom:5px; text-align:center; font-weight:bold;">PAINT</div>
+    <input type="color" id="garage-color-picker" style="width: 60px; height: 50px; background: none; border: none; cursor: pointer;">
+  </div>
+
+  <div id="bike-info-panel" style="position: absolute; top: 0; right: 0; width: 350px; height: 100%; background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.95) 100%); display: flex; flex-direction: column; justify-content: center; padding: 40px; box-sizing: border-box; align-items: flex-end;">
+  </div>
+</div>
 
       <!-- Tracks Menu -->
       <div id="menu-tracks" class="screen hidden" style="background-color: rgba(0, 30, 0, 0.9);">
@@ -80,18 +96,14 @@
 
       <!-- Missions Menu -->
       <div id="menu-missions" class="screen hidden" style="background-color: rgba(20, 0, 20, 0.9);">
-        <h1 style="color: #ff55ff; text-shadow: 0 0 10px #ff00ff;">MISSION BOARD</h1>
-        <div style="background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 1px solid #770077; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 40px; min-width: 400px;">
-          <h2 style="margin: 0; color: #fff;">ACTIVE MISSION</h2>
-          <p id="mission-board-title" style="font-size: 24px; color: #00ffff; margin: 10px 0;">Loading...</p>
-          <div style="width: 100%; height: 25px; background: #222; border: 2px solid #555; border-radius: 12px; overflow: hidden; position: relative;">
-            <div id="mission-board-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); transition: width 0.3s;"></div>
-            <div id="mission-board-progress-text" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-family: monospace; text-shadow: 1px 1px 2px #000;">0 / 0</div>
-          </div>
-          <p style="margin: 0; color: #ffcc00; font-size: 20px; margin-top: 10px;">Reward: <span id="mission-board-reward">0</span> Coins</p>
-        </div>
-        <button id="btn-missions-back" style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px;">BACK TO MENU</button>
-      </div>
+  <h1 style="color: #ff55ff; text-shadow: 0 0 10px #ff00ff;">MISSION BOARD</h1>
+  
+  <div id="missions-list-container" style="display:flex; flex-direction:column; gap:20px; max-width:800px; width:90%; max-height: 60%; overflow-y: auto;">
+    <!-- Generated by JS -->
+  </div>
+  
+  <button id="btn-missions-back" style="background: linear-gradient(45deg, #222, #444); border: 2px solid #666; padding: 15px 40px; font-size: 20px; margin-top:30px;">BACK TO MENU</button>
+</div>
 
       <div id="menu-gameover" class="screen hidden" style="
         background-color: #000;

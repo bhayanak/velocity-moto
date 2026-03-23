@@ -81,11 +81,10 @@ export class Game {
   
   start() {
     this.saveData = SaveSystem.load();
-    this.saveData = SaveSystem.load();
     this.isRunning = true;
     this.lastTime = performance.now();
     this.audio.startEngine();
-    updateMissionHUD(this.missionManager.getActiveMission());
+    updateMissionHUD(this.missionManager.getActiveMissions());
   }
   
   reset() {
@@ -94,14 +93,13 @@ export class Game {
     this.trafficManager.reset();
     this.pickupManager.reset();
     this.hazardManager.reset();
-    this.hazardManager.reset();
     this.director.reset();
     this.missionManager.initSessionStats();
     this.score = 0;
     this.distance = 0;
     this.sessionCoins = 0;
     updateHUD({ speed: 0, fuel: 1, nitro: 1, score: 0, coins: 0 });
-    updateMissionHUD(this.missionManager.getActiveMission());
+    updateMissionHUD(this.missionManager.getActiveMissions());
   }
   
   gameOver() {
@@ -134,6 +132,12 @@ export class Game {
     }
     
     this.sceneManager.render();
+  }
+
+  previewBike(bikeId) {
+    // this.player.bikeGroup.clear(); // We just apply stats to recolor
+
+    this.applyBikeStats(bikeId);
   }
 
   setGarageMode(active) {
@@ -253,7 +257,7 @@ export class Game {
       score: Math.floor(this.score),
       coins: this.sessionCoins
     });
-    updateMissionHUD(this.missionManager.getActiveMission());
+    updateMissionHUD(this.missionManager.getActiveMissions());
     
     // 6. Camera & Environment Update
     const currentTime = performance.now() / 1000;

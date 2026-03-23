@@ -93,14 +93,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update mission board UI
     const state = SaveSystem.load();
-    if (state.activeMission) {
-      document.getElementById('mission-board-title').innerText = state.activeMission.title;
-      document.getElementById('mission-board-reward').innerText = state.activeMission.rewardCoins;
-      const progress = Math.floor(state.activeMission.progress);
-      const target = state.activeMission.target;
-      const pct = Math.min(100, Math.floor((progress / target) * 100));
-      document.getElementById('mission-board-progress-bar').style.width = pct + '%';
-      document.getElementById('mission-board-progress-text').innerText = `${progress} / ${target}`;
+    const container = document.getElementById('missions-list-container');
+    container.innerHTML = '';
+
+    const activeMissions = game.missionManager ? game.missionManager.getActiveMissions() : state.activeMissions;
+    if (activeMissions && activeMissions.length > 0) {
+      activeMissions.forEach(m => {
+        const progress = Math.floor(m.progress);
+        const target = m.target;
+        const pct = Math.min(100, Math.floor((progress / target) * 100));
+
+        container.innerHTML += `
+          <div style="background: rgba(0,0,0,0.5); border: 1px solid #ff00ff; padding: 20px; border-radius: 10px; position: relative;">
+            <p style="font-size: 24px; color: #00ffff; margin: 0 0 10px 0; text-align: left;">${m.title}</p>
+            <div style="width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; position: relative;">
+              <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); transition: width 0.3s;"></div>
+              <div style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:14px; font-weight:bold; text-shadow: 1px 1px 2px #000;">${progress} / ${target}</div>
+            </div>
+            <p style="margin: 0; color: #ffcc00; font-size: 18px; margin-top: 10px; text-align: right;">Reward: ${m.rewardCoins} Coins</p>
+          </div>
+        `;
+      });
+    } else {
+      container.innerHTML = '<div style="color:white; font-size:24px;">No active missions</div>';
     }
   });
 
@@ -111,99 +126,153 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-start').classList.add('active');
   });
 
+  let currentGarageIndex = 0;
+
   function renderGarage() {
-    const list = document.getElementById('bike-list');
-    list.innerHTML = '';
+    const list = Object.values(BIKES);
     const state = SaveSystem.load();
+    const bike = list[currentGarageIndex];
 
-    Object.values(BIKES).forEach(bike => {
-      const isUnlocked = state.unlockedBikes.includes(bike.id);
-      const isSelected = state.currentBike === bike.id;
-      
-      const currentUpgrade = (state.upgrades && state.upgrades[bike.id]) ? state.upgrades[bike.id] : 0;
-      const maxUpgrades = bike.maxUpgrades || 5;
-      const upgradeCost = 200 + (currentUpgrade * 300); // progressive cost
-      const canAffordUpgrade = state.coins >= upgradeCost && currentUpgrade < maxUpgrades;
-      
-      const card = document.createElement('div');
-      card.style.background = 'rgba(0,0,0,0.6)';
-      card.style.border = '2px solid #555';
-      card.style.padding = '15px';
-      card.style.borderRadius = '12px';
-      card.style.textAlign = 'center';
-      card.style.position = 'relative';
+    const isUnlocked = state.unlockedBikes.includes(bike.id);
+    const isSelected = state.currentBike === bike.id;
 
-      let btnHtml = '';
-      if (isSelected) {
-        btnHtml = `<button disabled style="background:#00ffaa; color:#000;">SELECTED</button>`;
-      } else if (isUnlocked) {
-        btnHtml = `<button class="btn-select" data-id="${bike.id}">SELECT</button>`;
+    const currentUpgrade = (state.upgrades && state.upgrades[bike.id]) ? state.upgrades[bike.id] : 0;
+    const maxUpgrades = bike.maxUpgrades || 5;
+    const upgradeCost = 200 + (currentUpgrade * 300);
+    const canAffordUpgrade = state.coins >= upgradeCost && currentUpgrade < maxUpgrades;
+
+    // Auto-update model via Game
+    // We assume game has previewBike method
+    game.previewBike(bike.id);
+
+    const panel = document.getElementById('bike-info-panel');
+
+    let btnHtml = '';
+    if (isSelected) {
+      btnHtml = `<button disabled style="background:#00ffaa; color:#000; width:100%; margin-top:20px; font-size:24px; padding:15px;">SELECTED</button>`;
+    } else if (isUnlocked) {
+      btnHtml = `<button class="btn-select" data-id="${bike.id}" style="width:100%; margin-top:20px; font-size:24px; padding:15px;">SELECT</button>`;
+    } else {
+      const canAfford = state.coins >= bike.cost;
+      btnHtml = `<button class="btn-buy" data-id="${bike.id}" data-cost="${bike.cost}" ${!canAfford ? 'disabled' : ''} style="background:${canAfford ? '#00aaff' : '#555'}; width:100%; margin-top:20px; font-size:24px; padding:15px;">BUY (${bike.cost})</button>`;
+    }
+
+    let upgradeHtml = '';
+    if (isUnlocked) {
+      if (currentUpgrade < maxUpgrades) {
+        upgradeHtml = `<button class="btn-upgrade" data-id="${bike.id}" data-cost="${upgradeCost}" ${!canAffordUpgrade ? 'disabled' : ''} style="margin-top:10px; width:100%; font-size:20px; background:${canAffordUpgrade ? '#ff00aa' : '#555'};">UPGRADE (${upgradeCost})</button>`;
       } else {
-        const canAfford = state.coins >= bike.cost;
-        btnHtml = `<button class="btn-buy" data-id="${bike.id}" data-cost="${bike.cost}" ${!canAfford?'disabled':''} style="background:${canAfford?'#00aaff':'#555'};">BUY (${bike.cost})</button>`;
+        upgradeHtml = `<button disabled style="margin-top:10px; width:100%; font-size:20px; background:#444;">MAX UPGRADED</button>`;
       }
+    } else {
+      upgradeHtml = `<div style="margin-top:10px; text-align:center; color:#888;">Unlock to Upgrade</div>`;
+    }
+
+    const panelHtml = `
+      <h2 style="margin: 0 0 10px 0; color: #fff; font-size: 36px; text-transform: uppercase;">${bike.name}</h2>
+      ${isUnlocked ? '<div style="color:#00ffaa; font-weight:bold; margin-bottom: 20px;">OWNED</div>' : '<div style="color:#ff5555; font-weight:bold; margin-bottom: 20px;">LOCKED</div>'}
       
-      let upgradeHtml = '';
-      if (isUnlocked) {
-         if (currentUpgrade < maxUpgrades) {
-            upgradeHtml = `<button class="btn-upgrade" data-id="${bike.id}" data-cost="${upgradeCost}" ${!canAffordUpgrade?'disabled':''} style="margin-top: 5px; font-size: 14px; background:${canAffordUpgrade?'#ff00ff':'#555'};">UPGRADE ${currentUpgrade}/${maxUpgrades} (${upgradeCost}C)</button>`;
-         } else {
-            upgradeHtml = `<div style="color: #ffcc00; font-weight: bold; margin-top: 10px;">MAX LEVEL</div>`;
-         }
-      }
+      <div style="width: 100%; margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
+          <span style="text-align: left;">TOP SPEED</span>
+          <span>${bike.maxSpeed + (currentUpgrade * 5)} km/h</span>
+        </div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.topSpeed) * (1 + (currentUpgrade * 0.05))) / 300) * 100}%;"></div></div>
+      </div>
+      
+      <div style="width: 100%; margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
+          <span style="text-align: left;">ACCELERATION</span>
+          <span>${(bike.acceleration + (currentUpgrade * 0.5)).toFixed(1)}</span>
+        </div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.acceleration) * (1 + (currentUpgrade * 0.05))) / 70) * 100}%;"></div></div>
+      </div>
 
-      card.innerHTML = `
-        <h3 style="margin-top: 0; color: #fff;">${bike.name}</h3>
-        <div style="width: 100%; height: 5px; background: #${bike.color.toString(16).padStart(6,'0')}; margin: 10px 0;"></div>
-        <p style="font-size: 14px; color: #aaa; margin: 5px 0;">Spd: ${bike.topSpeed} | Acc: ${bike.acceleration}</p>
-        <div style="margin-top: 15px;">${btnHtml}</div>
-        ${upgradeHtml}
-      `;
-      list.appendChild(card);
-    });
+      <div style="width: 100%; margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
+          <span style="text-align: left;">HANDLING</span>
+          <span>${(bike.handling + (currentUpgrade * 0.05)).toFixed(2)}</span>
+        </div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.handling) * (1 + (currentUpgrade * 0.02))) / 30) * 100}%;"></div></div>
+      </div>
 
-    // Attach events
-    document.querySelectorAll('.btn-select').forEach(b => b.addEventListener('click', (e) => {
-      const id = e.target.getAttribute('data-id');
-      state.currentBike = id;
+      ${btnHtml}
+      ${upgradeHtml}
+    `;
+
+    panel.innerHTML = panelHtml;
+
+    // Remove old listeners to avoid memory leak / multiple triggers
+    const selBtn = panel.querySelector('.btn-select');
+    if (selBtn) selBtn.onclick = () => {
+      state.currentBike = bike.id;
       SaveSystem.save(state);
-      game.applyBikeStats(id);
+      game.applyBikeStats(bike.id);
       renderGarage();
-      setTimeout(() => document.querySelectorAll(".btn-select, .btn-buy, .btn-upgrade").forEach(b => b.addEventListener("click", playBtnClick)), 50);
-    }));
-
-    document.querySelectorAll('.btn-upgrade').forEach(b => b.addEventListener('click', (e) => {
-      const id = e.target.getAttribute('data-id');
-      const cost = parseInt(e.target.getAttribute('data-cost'));
-      if (state.coins >= cost) {
-        state.coins -= cost;
-        if (!state.upgrades) state.upgrades = {};
-        if (!state.upgrades[id]) state.upgrades[id] = 0;
-        state.upgrades[id]++;
-        SaveSystem.save(state);
-        updateMenuCoins();
-        game.applyBikeStats(state.currentBike); // refresh model
-        renderGarage();
-        setTimeout(() => document.querySelectorAll(".btn-select, .btn-buy, .btn-upgrade").forEach(b => b.addEventListener("click", playBtnClick)), 50);
-      }
-    }));
-
-    document.querySelectorAll('.btn-buy').forEach(b => b.addEventListener('click', (e) => {
       playBtnClick();
-      const id = e.target.getAttribute('data-id');
-      const cost = parseInt(e.target.getAttribute('data-cost'));
-      if (state.coins >= cost) {
-        state.coins -= cost;
-        state.unlockedBikes.push(id);
-        state.currentBike = id;
+    };
+
+    const upBtn = panel.querySelector('.btn-upgrade');
+    if (upBtn) upBtn.onclick = () => {
+      if (state.coins >= upgradeCost) {
+        state.coins -= upgradeCost;
+        if (!state.upgrades) state.upgrades = {};
+        if (!state.upgrades[bike.id]) state.upgrades[bike.id] = 0;
+        state.upgrades[bike.id]++;
         SaveSystem.save(state);
         updateMenuCoins();
-        game.applyBikeStats(id);
+        game.applyBikeStats(state.currentBike);
         renderGarage();
-        setTimeout(() => document.querySelectorAll(".btn-select, .btn-buy, .btn-upgrade").forEach(b => b.addEventListener("click", playBtnClick)), 50);
+        playBtnClick();
       }
-    }));
+    };
+
+    const buyBtn = panel.querySelector('.btn-buy');
+    if (buyBtn) buyBtn.onclick = () => {
+      if (state.coins >= bike.cost) {
+        state.coins -= bike.cost;
+        state.unlockedBikes.push(bike.id);
+        state.currentBike = bike.id;
+        SaveSystem.save(state);
+        updateMenuCoins();
+        game.applyBikeStats(bike.id);
+        renderGarage();
+        playBtnClick();
+      }
+    };
+
+    // Set color picker
+    const colorPicker = document.getElementById('garage-color-picker');
+    let defaultColor = '#ff0000';
+    if (bike.color !== undefined) {
+      defaultColor = '#' + bike.color.toString(16).padStart(6, '0');
+    }
+    colorPicker.value = (state.customColors && state.customColors[bike.id]) ? state.customColors[bike.id] : defaultColor;
+    colorPicker.onchange = (e) => {
+      const rgb = e.target.value;
+      if (!state.customColors) state.customColors = {};
+      state.customColors[bike.id] = rgb;
+      SaveSystem.save(state);
+      // Immediately reflect
+      game.previewBike(bike.id);
+    };
   }
+
+  // Setup navigation buttons outside the render so they don't re-bind continuously
+  // This will be called once on load
+  document.getElementById('btn-next-bike').addEventListener('click', () => {
+    playBtnClick();
+    const list = Object.values(BIKES);
+    currentGarageIndex = (currentGarageIndex + 1) % list.length;
+    renderGarage();
+  });
+
+  document.getElementById('btn-prev-bike').addEventListener('click', () => {
+    playBtnClick();
+    const list = Object.values(BIKES);
+    currentGarageIndex = (currentGarageIndex - 1 + list.length) % list.length;
+    renderGarage();
+  });
 
   document.getElementById('btn-tracks').addEventListener('click', () => {
     document.getElementById('menu-start').classList.remove('active');

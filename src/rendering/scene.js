@@ -19,6 +19,10 @@ export class SceneManager {
     
     // Initial camera position (cockpit offset)
     this.camera.position.set(0, 1.5, 0);
+    this.cameraMode = 'third'; // Default to third-person
+    window.addEventListener('toggle-camera', () => {
+      this.cameraMode = this.cameraMode === 'first' ? 'third' : 'first';
+    });
     
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -185,24 +189,39 @@ export class SceneManager {
   }
   
   updateCamera(playerPosition, leanAngle, speed, time) {
-    // Camera rigidly follows the bike, but with a slight offset
-    this.camera.position.x = playerPosition.x;
-    this.camera.position.y = playerPosition.y + 1.2; // height of rider eyes
-    this.camera.position.z = playerPosition.z + 0.5; // sit slightly behind the tank
-    
-    // Add high-speed camera shake and head bobble
-    if (speed > 100) {
-       const shakeIntensity = (speed - 100) * 0.0002;
-       this.camera.position.x += (Math.random() - 0.5) * shakeIntensity;
-       this.camera.position.y += (Math.random() - 0.5) * shakeIntensity;
-    }
-    
-    // Normal head bobble based on distance traveled
-    const bobble = Math.sin(time * 15) * (speed * 0.0001);
-    this.camera.position.y += bobble;
+    if (this.cameraMode === 'third') {
+      // Third person: back and up
+      this.camera.position.x = playerPosition.x;
+      this.camera.position.y = playerPosition.y + 2.5;
+      this.camera.position.z = playerPosition.z + 4.5;
 
-    // Roll camera based on lean angle
-    this.camera.rotation.z = -leanAngle * 0.5;
+      // Look slighty down at the bike
+      this.camera.lookAt(playerPosition.x, playerPosition.y + 0.5, playerPosition.z - 5);
+
+      this.camera.rotation.z = -leanAngle * 0.2; // Less roll in 3rd person
+    } else {
+      // True First Person view: inside the helmet looking at windshield & dash
+      this.camera.position.x = playerPosition.x;
+      this.camera.position.y = playerPosition.y + 1.1;
+      this.camera.position.z = playerPosition.z + 0.05;
+
+      // Look slightly forward and down at the dash
+      this.camera.lookAt(playerPosition.x, playerPosition.y + 0.8, playerPosition.z - 2.0);
+
+      // Add high-speed camera shake and head bobble
+      if (speed > 100) {
+        const shakeIntensity = (speed - 100) * 0.0002;
+        this.camera.position.x += (Math.random() - 0.5) * shakeIntensity;
+        this.camera.position.y += (Math.random() - 0.5) * shakeIntensity;
+      }
+
+      // Normal head bobble based on distance traveled
+      const bobble = Math.sin(time * 15) * (speed * 0.0001);
+      this.camera.position.y += bobble;
+
+      // Roll camera based on lean angle
+      this.camera.rotation.z = -leanAngle * 0.5;
+    }
   }
   
   setGarageMode(active, bikeGroup) {

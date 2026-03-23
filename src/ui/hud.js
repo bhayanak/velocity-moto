@@ -25,17 +25,18 @@ export function updateHUD(state) {
   if(coinsVal) coinsVal.innerText = state.coins || 0;
 }
 
-export function updateMissionHUD(mission) {
+export function updateMissionHUD(missions) {
   if (!missionText) return;
-  if (!mission) {
+  if (!missions || missions.length === 0) {
     missionText.innerText = `Missions Complete!`;
     return;
   }
+  const mission = missions[0];
   const progressText = mission.type === 'distance' ? 
     `${Math.floor(mission.progress)}/${mission.target} m` : 
-    `${mission.progress}/${mission.target}`;
+    `${Math.floor(mission.progress)}/${mission.target}`;
     
-  missionText.innerText = `📍 ${mission.title} (${progressText})`;
+  missionText.innerText = `📍 ${mission.title} (${progressText}) (+${missions.length - 1})`;
 }
 
 export function showMissionComplete(reward) {
