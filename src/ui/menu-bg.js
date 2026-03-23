@@ -211,9 +211,9 @@ export function initMenuBackground() {
     }
 
       // Draw the motorcycle - positioned in road area (below buttons)
-      const bikeScale = Math.min(w / 400, h / 300) * 1.0;
-      const bikeX = w * 0.35;
-      const bikeY = h * 0.78;
+      const bikeScale = Math.min(w / 400, h / 300) * 1.5;
+      const bikeX = w * 0.5;
+      const bikeY = h * 0.5;
     const wheelAngle = time * 8; // spinning
 
     // Subtle bounce
