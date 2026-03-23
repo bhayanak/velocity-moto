@@ -1,4 +1,6 @@
-const SAVE_KEY = 'racing_moto_save_v1';
+import { CrazySDK } from '../integrations/crazygames.js';
+
+const SAVE_KEY = 'velocity_moto_save_v1';
 
 const defaultSave = {
   coins: 0,
@@ -22,9 +24,8 @@ const defaultSave = {
 export class SaveSystem {
   static load() {
     try {
-      const data = localStorage.getItem(SAVE_KEY);
+      const data = CrazySDK.dataGetItem(SAVE_KEY);
       if (data) {
-        // Merge with defaults to ensure missing keys are populated
         return { ...defaultSave, ...JSON.parse(data) };
       }
     } catch (err) {
@@ -35,7 +36,7 @@ export class SaveSystem {
 
   static save(state) {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+      CrazySDK.dataSetItem(SAVE_KEY, JSON.stringify(state));
     } catch (err) {
       console.warn("Could not save data", err);
     }

@@ -16,6 +16,8 @@ import { Director } from '../gameplay/director.js';
 import { MissionManager } from '../gameplay/missions.js';
 import { DailyRewardManager } from '../gameplay/daily-rewards.js';
 
+import { CrazySDK } from '../integrations/crazygames.js';
+
 export class Game {
   constructor(container) {
     this.container = container;
@@ -118,6 +120,7 @@ export class Game {
     SaveSystem.save(this.saveData);
 
     showGameOver(Math.floor(this.score), this.sessionCoins);
+    CrazySDK.gameplayStop();
   }
   
   loop(time) {

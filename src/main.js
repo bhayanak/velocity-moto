@@ -3,8 +3,13 @@ import { setupHUD } from './ui/hud.js';
 import { SaveSystem } from './persistence/save-game.js';
 import { BIKES } from './data/bikes.js';
 import { TRACKS } from './data/tracks.js';
+import { CrazySDK } from './integrations/crazygames.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Init CrazyGames SDK (no-ops on non-CG domains)
+  await CrazySDK.init();
+  CrazySDK.loadingStart();
+
   const container = document.getElementById('game-container');
   
   // Setup UI elements
@@ -18,6 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize game
   const game = new Game(container);
+  CrazySDK.loadingStop();
+
+  // Respect CrazyGames mute setting
+  const cgSettings = CrazySDK.getSettings();
+  if (cgSettings.muteAudio && game.audio) game.audio.setMasterVolume(0);
+  CrazySDK.onSettingsChange((s) => {
+    if (s.muteAudio && game.audio) game.audio.setMasterVolume(0);
+  });
   
   function updateMenuCoins() {
     const state = SaveSystem.load();
@@ -44,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     game.start();
+    CrazySDK.gameplayStart();
   });
   
   document.getElementById('btn-restart').addEventListener('click', () => {
@@ -55,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     game.reset();
     game.start();
+    CrazySDK.gameplayStart();
   });
 
   document.getElementById('btn-to-main').addEventListener('click', () => {
@@ -64,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-start').classList.add('active');
     updateMenuCoins();
     game.reset();
+    CrazySDK.gameplayStop();
   });
 
   document.getElementById('btn-garage').addEventListener('click', () => {
