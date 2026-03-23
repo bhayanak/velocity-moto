@@ -4,10 +4,14 @@ import { SaveSystem } from './persistence/save-game.js';
 import { BIKES } from './data/bikes.js';
 import { TRACKS } from './data/tracks.js';
 import { CrazySDK } from './integrations/crazygames.js';
+import { initMenuBackground } from './ui/menu-bg.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Init CrazyGames SDK (no-ops on non-CG domains)
   await CrazySDK.init();
+
+  // Start animated menu background
+  initMenuBackground();
   CrazySDK.loadingStart();
 
   const container = document.getElementById('game-container');
@@ -120,6 +124,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   updateMenuCoins();
 
+  // ── Camera toggle button (for mobile) ──
+  document.getElementById('btn-camera')?.addEventListener('click', () => {
+    window.dispatchEvent(new Event('toggle-camera'));
+  });
+
+  // Helper: show/hide touch controls
+  function showTouchControls() {
+    if (game.touchConfig) game.touchConfig.show();
+  }
+  function hideTouchControls() {
+    if (game.touchConfig) game.touchConfig.hide();
+  }
+
   // Setup UI event listeners
   document.getElementById('btn-start').addEventListener('click', () => {
     document.getElementById('menu-start').classList.remove('active');
@@ -129,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('hud-playing').classList.add('active');
     
     clearGameBanners();
+    showTouchControls();
 
     // Refresh stats from whatever bike is selected
     const state = SaveSystem.load();
@@ -152,6 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     clearGameBanners();
     document.getElementById('btn-double-coins').style.display = 'none';
+    showTouchControls();
 
     game.reset();
     game.start();
@@ -168,6 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     CrazySDK.gameplayStop();
     clearGameBanners();
     document.getElementById('btn-double-coins').style.display = 'none';
+    hideTouchControls();
     showMenuBanners();
   });
 

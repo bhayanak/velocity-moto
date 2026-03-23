@@ -59,6 +59,10 @@ export function showGameOver(finalScore, finalCoins) {
   document.getElementById('menu-gameover').classList.remove('hidden');
   document.getElementById('menu-gameover').classList.add('active');
   
+  // Hide touch controls on game over
+  const tc = document.getElementById('touch-controls');
+  if (tc) tc.classList.add('tc-hidden');
+
   document.getElementById('final-score').innerText = finalScore;
   document.getElementById('final-coins').innerText = finalCoins || 0;
 }

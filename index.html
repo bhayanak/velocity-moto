@@ -30,9 +30,11 @@
           <div id="coins" style="color:#ffcc00; font-weight:bold; font-size: 20px;">Coins: <span id="coins-val">0</span></div>
           <div id="nitro-gauge">Nitro: <div class="bar-bg"><div class="bar-fill nitro" id="nitro-fill"></div></div></div>
         </div>
-        <!-- Sound toggle -->
-        <button id="btn-mute" title="Toggle Sound"
-          style="position:absolute; top:10px; right:10px; width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.5); border:2px solid rgba(255,255,255,0.3); color:white; font-size:20px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center;">🔊</button>
+        <!-- HUD buttons row (below score) -->
+        <div class="hud-btn-row">
+          <button id="btn-mute" title="Toggle Sound" class="hud-icon-btn">🔊</button>
+          <button id="btn-camera" title="Toggle Camera" class="hud-icon-btn">📷</button>
+        </div>
         <!-- CG Username -->
         <div id="cg-user"
           style="position:absolute; top:10px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.7); font-size:14px; display:none;">
@@ -44,39 +46,40 @@
         justify-content: flex-start; 
         padding-top: 10vh; 
         background-color: #000;
-        background-image: 
-          linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.9) 100%),
-          url('https://images.unsplash.com/photo-1558981420-c532902e58b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        background-position: center;
       ">
-        <h1 style="font-size: 110px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0; text-shadow: 0 0 30px rgba(0, 170, 255, 0.8), 0 0 10px rgba(0, 85, 255, 0.8), 0 8px 0 #002255, 0 15px 20px rgba(0,0,0,0.5); color: white;">VELOCITY MOTO</h1>
-        <div style="font-family: 'Rajdhani', sans-serif; font-size: 28px; color: #ffcc00; letter-spacing: 4px; text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); margin-bottom: auto;">THE ULTIMATE HIGHWAY RUSH</div>
+        <!-- Animated bike background -->
+        <canvas id="menu-bg-canvas"></canvas>
         
-        <div style="margin-bottom: 8vh; display: flex; flex-direction: column; align-items: center; gap: 20px;">
-          <button id="btn-start" style="font-size: 32px; padding: 20px 80px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); box-shadow: 0 0 20px rgba(0, 170, 255, 0.4), inset 0 0 10px rgba(255,255,255,0.2);">START MISSION</button>
-          
-          <div style="display: flex; gap: 15px;">
-            <button id="btn-garage" style="background: linear-gradient(45deg, #1a1a2e, #2a2a4a); border: 2px solid #4a4a7a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">GARAGE / BIKES</button>
-            <button id="btn-missions" style="background: linear-gradient(45deg, #2e1a2e, #4a2a2a); border: 2px solid #7a4a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">MISSIONS</button>
-            <button id="btn-tracks" style="background: linear-gradient(45deg, #1a2e1a, #2a4a2a); border: 2px solid #4a7a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">TRACKS</button>
-            <button id="btn-daily"
-              style="background: linear-gradient(45deg, #2e2e1a, #4a4a2a); border: 2px solid #7a7a4a; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 20px; padding: 15px 40px; letter-spacing: 1px;">DAILY</button>
+        <h1 class="menu-title">VELOCITY MOTO</h1>
+        <div class="menu-subtitle">THE ULTIMATE HIGHWAY RUSH</div>
+        <div class="menu-buttons-wrap">
+          <button id="btn-start" class="btn-start-main">START MISSION</button>
+          <div class="menu-btn-row">
+            <button id="btn-garage" class="menu-btn"
+              style="background: linear-gradient(45deg, #1a1a2e, #2a2a4a); border-color: #4a4a7a;">GARAGE</button>
+            <button id="btn-missions" class="menu-btn"
+              style="background: linear-gradient(45deg, #2e1a2e, #4a2a2a); border-color: #7a4a4a;">MISSIONS</button>
+            <button id="btn-tracks" class="menu-btn"
+              style="background: linear-gradient(45deg, #1a2e1a, #2a4a2a); border-color: #4a7a4a;">TRACKS</button>
+            <button id="btn-daily" class="menu-btn"
+              style="background: linear-gradient(45deg, #2e2e1a, #4a4a2a); border-color: #7a7a4a;">DAILY</button>
           </div>
           
-          <div style="margin-top: 15px; font-size: 26px; font-family: 'Orbitron', sans-serif; color: #ffcc00; text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 8px; border: 1px solid rgba(255,204,0,0.3);">
+          <div class="menu-bank">
             BANK: <span id="menu-coins" style="color: white;">0</span> COINS
           </div>
         </div>
         
-        <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; color: rgba(255,255,255,0.7); font-size: 16px; text-shadow: 1px 1px 2px #000; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;">
-          <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span> to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[C]</span> View to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[SPACE]</span> Nitro &nbsp;&bull;&nbsp; <span style="color:#fff">[SHIFT]</span> Brake</p>
+        <div class="menu-controls-hint">
+          <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span>
+            &bull; <span style="color:#fff">[C]</span> Camera &bull; <span style="color:#fff">[SPACE]</span> Nitro &bull; <span
+              style="color:#fff">[SHIFT]</span> Brake</p>
         </div>
         <!-- Sound toggle on main menu -->
-        <button id="btn-mute-menu" title="Toggle Sound"
-          style="position:absolute; top:20px; right:20px; width:50px; height:50px; border-radius:50%; background:rgba(0,0,0,0.6); border:2px solid rgba(255,255,255,0.3); color:white; font-size:24px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center;">🔊</button>
+        <button id="btn-mute-menu" title="Toggle Sound" class="hud-icon-btn"
+          style="position:absolute; top:15px; right:15px; z-index:10;">🔊</button>
         <!-- Banner container for main menu -->
-        <div id="banner-menu" style="position:absolute; bottom:60px; right:20px; width:300px; height:250px;"></div>
+        <div id="banner-menu" style="position:absolute; bottom:60px; right:10px; width:300px; height:250px;"></div>
       </div>
 
       <div id="menu-garage" class="screen hidden no-bg">
@@ -136,17 +139,26 @@
         background-color: #000;
         background-image: linear-gradient(180deg, rgba(200, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.9) 100%);
       ">
-        <h1 style="font-size: 80px; color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.8); margin-bottom: 20px;">CRASHED!</h1>
-        <div style="background: rgba(0,0,0,0.6); padding: 30px; border-radius: 15px; border: 1px solid #550000; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 40px;">
-          <p style="font-size: 32px; margin: 0; color: white;">Final Score: <span id="final-score" style="color: #00aaff; font-weight: bold;">0</span></p>
-          <p style="font-size: 28px; margin: 0; color: white;">Coins Collected: <span id="final-coins" style="color: #ffcc00; font-weight: bold;">0</span></p>
+        <h1
+          style="font-size: clamp(40px, 10vw, 80px); color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.8); margin-bottom: 20px;">
+          CRASHED!</h1>
+        <div
+          style="background: rgba(0,0,0,0.6); padding: 20px; border-radius: 15px; border: 1px solid #550000; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 30px; max-width: 90%;">
+          <p style="font-size: clamp(20px, 4vw, 32px); margin: 0; color: white;">Final Score: <span id="final-score"
+              style="color: #00aaff; font-weight: bold;">0</span></p>
+          <p style="font-size: clamp(18px, 3.5vw, 28px); margin: 0; color: white;">Coins Collected: <span id="final-coins"
+              style="color: #ffcc00; font-weight: bold;">0</span></p>
         </div>
-        <div style="display: flex; gap: 20px;">
-          <button id="btn-restart" style="padding: 20px 50px; font-size: 28px; background: linear-gradient(45deg, #aa0000, #ff3333); border: 2px solid #ffaaaa; box-shadow: 0 0 20px rgba(255,0,0,0.5);">RETRY RACE</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 0 10px;">
+          <button id="btn-restart"
+            style="padding: 15px 30px; font-size: clamp(16px, 3vw, 28px); background: linear-gradient(45deg, #aa0000, #ff3333); border: 2px solid #ffaaaa; box-shadow: 0 0 20px rgba(255,0,0,0.5);">RETRY
+            RACE</button>
           <button id="btn-double-coins"
-            style="padding: 20px 50px; font-size: 22px; background: linear-gradient(45deg, #cc9900, #ffcc00); border: 2px solid #ffe066; color: #000; box-shadow: 0 0 20px rgba(255,204,0,0.4); display:none;">🎬
+            style="padding: 15px 30px; font-size: clamp(14px, 2.5vw, 22px); background: linear-gradient(45deg, #cc9900, #ffcc00); border: 2px solid #ffe066; color: #000; box-shadow: 0 0 20px rgba(255,204,0,0.4); display:none;">🎬
             DOUBLE COINS</button>
-          <button id="btn-to-main" style="padding: 20px 50px; font-size: 24px; background: linear-gradient(45deg, #222, #444); border: 2px solid #666;">MAIN MENU</button>
+          <button id="btn-to-main"
+            style="padding: 15px 30px; font-size: clamp(14px, 3vw, 24px); background: linear-gradient(45deg, #222, #444); border: 2px solid #666;">MAIN
+            MENU</button>
         </div>
         <!-- Banner on game over -->
         <div id="banner-gameover" style="margin-top:20px; width:728px; height:90px;"></div>

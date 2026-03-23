@@ -224,4 +224,172 @@ button:disabled { opacity: 0.5; pointer-events: none; }
 }
 
 .no-bg { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-.no-bg { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+/* ── Menu Background Canvas ── */
+#menu-bg-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* ── Responsive Main Menu ── */
+.menu-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(36px, 10vw, 110px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0;
+  text-shadow: 0 0 30px rgba(0, 170, 255, 0.8), 0 0 10px rgba(0, 85, 255, 0.8), 0 8px 0 #002255, 0 15px 20px rgba(0, 0, 0, 0.5);
+  color: white;
+  z-index: 1;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.menu-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(14px, 3vw, 28px);
+  color: #ffcc00;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+  margin-bottom: auto;
+  z-index: 1;
+  text-align: center;
+}
+
+.menu-buttons-wrap {
+  margin-bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  z-index: 1;
+  width: 100%;
+  padding: 0 15px;
+}
+
+.btn-start-main {
+  font-size: clamp(18px, 4vw, 32px) !important;
+  padding: 15px clamp(30px, 8vw, 80px) !important;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 20px rgba(0, 170, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.menu-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.menu-btn {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+  font-size: clamp(12px, 2.5vw, 20px) !important;
+  padding: 10px clamp(15px, 4vw, 40px) !important;
+  letter-spacing: 1px;
+}
+
+.menu-bank {
+  margin-top: 15px;
+  font-size: clamp(16px, 3vw, 26px);
+  font-family: 'Orbitron', sans-serif;
+  color: #ffcc00;
+  text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.menu-controls-hint {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(10px, 1.5vw, 16px);
+  text-shadow: 1px 1px 2px #000;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  z-index: 1;
+  padding: 0 10px;
+}
+
+/* ── HUD icon buttons ── */
+.hud-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  box-shadow: none !important;
+  pointer-events: auto;
+}
+
+.hud-btn-row {
+  position: absolute;
+  top: 12px;
+  right: 180px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+/* ── Mobile breakpoints ── */
+@media (max-width: 600px) {
+  .hud-top-left {
+    top: 10px;
+    left: 10px;
+  }
+
+  .hud-top-right {
+    top: 10px;
+    right: 10px;
+  }
+
+  #speedometer {
+    font-size: 24px;
+  }
+
+  #score {
+    font-size: 20px;
+  }
+
+  .bar-bg {
+    width: 90px;
+    height: 8px;
+  }
+
+  .hud-btn-row {
+    right: 120px;
+    top: 8px;
+  }
+
+  .hud-icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .menu-controls-hint {
+    display: none;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .menu-controls-hint {
+    display: none;
+  }
+}

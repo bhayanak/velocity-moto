@@ -22,9 +22,9 @@ export class PlayerBike {
     this.buildBikeMesh('starter', 0, 0xcc0000);
 
     this.exhaustParticles = [];
-    this.exhaustGeo = new THREE.PlaneGeometry(0.2, 0.2);
+    this.exhaustGeo = new THREE.PlaneGeometry(0.08, 0.08);
     this.exhaustMat = new THREE.MeshBasicMaterial({ 
-      color: 0xffaa00, transparent: true, opacity: 0.8,
+      color: 0xffaa00, transparent: true, opacity: 0.45,
       blending: THREE.AdditiveBlending, depthWrite: false
     });
 
@@ -560,7 +560,7 @@ export class PlayerBike {
       }
     }
 
-    if (this.speed > 20 && Math.random() > 0.3) {
+    if (this.speed > 20 && Math.random() > 0.6) {
       if (input.nitro && this.nitro > 0) {
         this.exhaustMat.color.setHex(0x00ffff);
       } else {
@@ -570,16 +570,16 @@ export class PlayerBike {
       particle.position.copy(this.position);
       particle.position.z += 1.5;
       particle.position.y += 0.4;
-      particle.position.x += (Math.random() - 0.5) * 0.4;
+      particle.position.x += (Math.random() - 0.5) * 0.15;
       this.scene.add(particle);
-      this.exhaustParticles.push({ mesh: particle, life: 1.0 });
+      this.exhaustParticles.push({ mesh: particle, life: 0.7 });
     }
 
     for (let i = this.exhaustParticles.length - 1; i >= 0; i--) {
       let p = this.exhaustParticles[i];
-      p.life -= dt * 4;
-      p.mesh.scale.setScalar(p.life * 2);
-      p.mesh.material.opacity = p.life;
+      p.life -= dt * 5;
+      p.mesh.scale.setScalar(p.life * 0.8);
+      p.mesh.material.opacity = p.life * 0.6;
       if (p.life <= 0) {
         this.scene.remove(p.mesh);
         this.exhaustParticles.splice(i, 1);

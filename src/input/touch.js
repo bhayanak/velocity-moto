@@ -22,6 +22,9 @@ export class TouchInput {
         display: flex;
         pointer-events: none;
       }
+      #touch-controls.tc-hidden {
+        display: none !important;
+      }
       .touch-zone {
         pointer-events: auto;
         opacity: 0; /* invisible but clickable */
@@ -30,18 +33,19 @@ export class TouchInput {
       #zone-right { width: 33%; height: 100%; margin-left: auto; }
       #btn-touch-nitro, #btn-touch-brake {
         position: absolute;
-        bottom: 20px;
-        width: 80px; height: 80px;
+        bottom: 25px;
+        width: 70px; height: 70px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        border: 2px solid #fff;
+        background: rgba(255, 255, 255, 0.25);
+        border: 2px solid rgba(255,255,255,0.6);
         pointer-events: auto;
         display: none; /* hidden on desktop */
         align-items: center; justify-content: center;
         font-weight: bold; color: white;
+        font-size: 12px;
       }
-      #btn-touch-brake { left: 35%; }
-      #btn-touch-nitro { right: 35%; background: rgba(0, 170, 255, 0.4); }
+      #btn-touch-brake { left: 15px; }
+      #btn-touch-nitro { right: 15px; background: rgba(0, 170, 255, 0.35); }
 
       @media (hover: none) and (pointer: coarse) {
         #btn-touch-nitro, #btn-touch-brake { display: flex; }
@@ -51,6 +55,7 @@ export class TouchInput {
 
     const overlay = document.createElement('div');
     overlay.id = 'touch-controls';
+    overlay.classList.add('tc-hidden'); // Hidden by default until gameplay starts
     
     const zoneLeft = document.createElement('div');
     zoneLeft.id = 'zone-left';
@@ -74,8 +79,6 @@ export class TouchInput {
     overlay.appendChild(btnNitro);
     document.body.appendChild(overlay);
 
-    // Auto-accelerate for mobile by default when playing (managed by Game usually, but we'll bind left/right)
-    
     const bindBtn = (el, key) => {
       el.addEventListener('touchstart', (e) => { e.preventDefault(); this.state[key] = true; });
       el.addEventListener('touchend', (e) => { e.preventDefault(); this.state[key] = false; });
@@ -88,6 +91,18 @@ export class TouchInput {
     bindBtn(zoneRight, 'right');
     bindBtn(btnBrake, 'brake');
     bindBtn(btnNitro, 'nitro');
+  }
+
+  /** Show touch controls (call when gameplay starts) */
+  show() {
+    const el = document.getElementById('touch-controls');
+    if (el) el.classList.remove('tc-hidden');
+  }
+
+  /** Hide touch controls (call when leaving gameplay) */
+  hide() {
+    const el = document.getElementById('touch-controls');
+    if (el) el.classList.add('tc-hidden');
   }
 
   update() {
