@@ -22,10 +22,10 @@ export class PlayerBike {
     this.buildBikeMesh('starter', 0, 0xcc0000);
 
     this.exhaustParticles = [];
-    this.exhaustGeo = new THREE.PlaneGeometry(0.08, 0.08);
+    this.exhaustGeo = new THREE.CircleGeometry(0.05, 8);
     this.exhaustMat = new THREE.MeshBasicMaterial({ 
-      color: 0xffaa00, transparent: true, opacity: 0.45,
-      blending: THREE.AdditiveBlending, depthWrite: false
+      color: 0xffaa00, transparent: true, opacity: 0.60,
+      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
     });
 
     this.skidMarks = [];

@@ -318,67 +318,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let btnHtml = '';
     if (isSelected) {
-      btnHtml = `<button disabled style="background:#00ffaa; color:#000; width:100%; margin-top:20px; font-size:24px; padding:15px;">SELECTED</button>`;
+      btnHtml = `<button disabled style="background:#00ffaa; color:#000; font-size:clamp(14px,2.5vw,24px); padding:10px 15px;">SELECTED</button>`;
     } else if (isUnlocked) {
-      btnHtml = `<button class="btn-select" data-id="${bike.id}" style="width:100%; margin-top:20px; font-size:24px; padding:15px;">SELECT</button>`;
+      btnHtml = `<button class="btn-select" data-id="${bike.id}" style="font-size:clamp(14px,2.5vw,24px); padding:10px 15px;">SELECT</button>`;
     } else {
       const canAfford = state.coins >= bike.cost;
-      btnHtml = `<button class="btn-buy" data-id="${bike.id}" data-cost="${bike.cost}" ${!canAfford ? 'disabled' : ''} style="background:${canAfford ? '#00aaff' : '#555'}; width:100%; margin-top:20px; font-size:24px; padding:15px;">BUY (${bike.cost})</button>`;
+      btnHtml = `<button class="btn-buy" data-id="${bike.id}" data-cost="${bike.cost}" ${!canAfford ? 'disabled' : ''} style="background:${canAfford ? '#00aaff' : '#555'}; font-size:clamp(14px,2.5vw,24px); padding:10px 15px;">BUY (${bike.cost})</button>`;
     }
 
     let upgradeHtml = '';
     if (isUnlocked) {
       if (currentUpgrade < maxUpgrades) {
-        upgradeHtml = `<button class="btn-upgrade" data-id="${bike.id}" data-cost="${upgradeCost}" ${!canAffordUpgrade ? 'disabled' : ''} style="margin-top:10px; width:100%; font-size:20px; background:${canAffordUpgrade ? '#ff00aa' : '#555'};">UPGRADE (${upgradeCost})</button>`;
+        upgradeHtml = `<button class="btn-upgrade" data-id="${bike.id}" data-cost="${upgradeCost}" ${!canAffordUpgrade ? 'disabled' : ''} style="font-size:clamp(12px,2vw,20px); background:${canAffordUpgrade ? '#ff00aa' : '#555'}; padding:8px 12px;">UPGRADE (${upgradeCost})</button>`;
       } else {
-        upgradeHtml = `<button disabled style="margin-top:10px; width:100%; font-size:20px; background:#444;">MAX UPGRADED</button>`;
+        upgradeHtml = `<button disabled style="font-size:clamp(12px,2vw,20px); background:#444; padding:8px 12px;">MAX UPGRADED</button>`;
       }
     } else {
-      upgradeHtml = `<div style="margin-top:10px; text-align:center; color:#888;">Unlock to Upgrade</div>`;
+      upgradeHtml = `<div style="text-align:center; color:#888; font-size:clamp(10px,1.8vw,14px);">Unlock to Upgrade</div>`;
     }
 
     const panelHtml = `
-      <h2 style="margin: 0 0 10px 0; color: #fff; font-size: 36px; text-transform: uppercase;">${bike.name}</h2>
-      ${isUnlocked ? '<div style="color:#00ffaa; font-weight:bold; margin-bottom: 20px;">OWNED</div>' : '<div style="color:#ff5555; font-weight:bold; margin-bottom: 20px;">LOCKED</div>'}
+      <h2 style="margin: 0 0 8px 0; color: #fff; font-size: clamp(20px, 4vw, 36px); text-transform: uppercase; text-align: center;">${bike.name}</h2>
+      ${isUnlocked ? '<div style="color:#00ffaa; font-weight:bold; margin-bottom: 10px; text-align:center;">OWNED</div>' : '<div style="color:#ff5555; font-weight:bold; margin-bottom: 10px; text-align:center;">LOCKED</div>'}
       
-      <div style="width: 100%; margin-bottom:15px;">
-        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
-          <span style="text-align: left;">TOP SPEED</span>
-          <span>${Math.round(bike.topSpeed * (1 + currentUpgrade * 0.05))} km/h</span>
+      <div class="garage-stats-grid">
+        <div class="garage-stat-item">
+          <div class="garage-stat-label"><span>TOP SPEED</span><span>${Math.round(bike.topSpeed * (1 + currentUpgrade * 0.05))}</span></div>
+          <div class="bar-bg" style="width:100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.topSpeed * (1 + currentUpgrade * 0.05)) / 250 * 100)}%;"></div></div>
         </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.topSpeed * (1 + currentUpgrade * 0.05)) / 250 * 100)}%;"></div></div>
-      </div>
-      
-      <div style="width: 100%; margin-bottom:15px;">
-        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
-          <span style="text-align: left;">ACCELERATION</span>
-          <span>${(bike.acceleration * (1 + currentUpgrade * 0.05)).toFixed(1)}</span>
+        <div class="garage-stat-item">
+          <div class="garage-stat-label"><span>ACCEL</span><span>${(bike.acceleration * (1 + currentUpgrade * 0.05)).toFixed(1)}</span></div>
+          <div class="bar-bg" style="width:100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.acceleration * (1 + currentUpgrade * 0.05)) / 60 * 100)}%;"></div></div>
         </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.acceleration * (1 + currentUpgrade * 0.05)) / 60 * 100)}%;"></div></div>
+        <div class="garage-stat-item">
+          <div class="garage-stat-label"><span>HANDLING</span><span>${(bike.handling * (1 + currentUpgrade * 0.02)).toFixed(1)}</span></div>
+          <div class="bar-bg" style="width:100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.handling * (1 + currentUpgrade * 0.02)) / 28 * 100)}%;"></div></div>
+        </div>
+        <div class="garage-stat-item">
+          <div class="garage-stat-label"><span>FUEL</span><span>${(bike.fuelCapacity * (1 + currentUpgrade * 0.03)).toFixed(2)}</span></div>
+          <div class="bar-bg" style="width:100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.fuelCapacity * (1 + currentUpgrade * 0.03)) / 2.5 * 100)}%; background: #ffcc00;"></div></div>
+        </div>
       </div>
 
-      <div style="width: 100%; margin-bottom:15px;">
-        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
-          <span style="text-align: left;">HANDLING</span>
-          <span>${(bike.handling * (1 + currentUpgrade * 0.02)).toFixed(1)}</span>
-        </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.handling * (1 + currentUpgrade * 0.02)) / 28 * 100)}%;"></div></div>
+      <div style="text-align:center; color:rgba(255,255,255,0.5); font-size:clamp(10px,1.8vw,14px); margin: 5px 0;">
+        UPGRADE: ${currentUpgrade} / ${maxUpgrades}
       </div>
 
-      <div style="width: 100%; margin-bottom:15px;">
-        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
-          <span style="text-align: left;">FUEL CAPACITY</span>
-          <span>${(bike.fuelCapacity * (1 + currentUpgrade * 0.03)).toFixed(2)}</span>
-        </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.fuelCapacity * (1 + currentUpgrade * 0.03)) / 2.5 * 100)}%; background: #ffcc00;"></div></div>
+      <div class="garage-btn-row">
+        ${btnHtml}
+        ${upgradeHtml}
       </div>
-
-      <div style="margin-bottom:15px; text-align:center; color:rgba(255,255,255,0.5); font-size:14px;">
-        UPGRADE LEVEL: ${currentUpgrade} / ${maxUpgrades}
-      </div>
-
-      ${btnHtml}
-      ${upgradeHtml}
     `;
 
     panel.innerHTML = panelHtml;
@@ -455,6 +444,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderGarage();
   });
 
+  // Swipe to change bikes in garage (mobile)
+  (() => {
+    const garageEl = document.getElementById('menu-garage');
+    let swipeStartX = 0;
+    garageEl.addEventListener('touchstart', (e) => {
+      swipeStartX = e.touches[0].clientX;
+    }, { passive: true });
+    garageEl.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - swipeStartX;
+      if (Math.abs(dx) > 50) {
+        const list = Object.values(BIKES);
+        if (dx < 0) {
+          currentGarageIndex = (currentGarageIndex + 1) % list.length;
+        } else {
+          currentGarageIndex = (currentGarageIndex - 1 + list.length) % list.length;
+        }
+        renderGarage();
+      }
+    }, { passive: true });
+  })();
+
   document.getElementById('btn-tracks').addEventListener('click', () => {
     document.getElementById('menu-start').classList.remove('active');
     document.getElementById('menu-start').classList.add('hidden');
@@ -482,7 +492,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     Object.keys(TRACKS).forEach(trackId => {
       const track = TRACKS[trackId];
-      // ensure backward compat for saves before tracks were added
       if (!state.unlockedTracks) {
         state.unlockedTracks = ['city'];
         state.currentTrack = 'city';
@@ -492,32 +501,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       const isSelected = state.currentTrack === trackId;
       
       const div = document.createElement('div');
+      div.className = 'track-card';
+      div.style.border = `2px solid ${isSelected ? '#00ffaa' : isUnlocked ? '#aaa' : '#555'}`;
       
       let thumbBg = '';
       if (trackId === 'city') thumbBg = 'linear-gradient(to bottom, #112233 40%, #87CEEB 80%, #333333)';
       else if (trackId === 'desert') thumbBg = 'linear-gradient(to bottom, #aa5522 40%, #ffaa55 80%, #443322)';
       else if (trackId === 'forest') thumbBg = 'linear-gradient(to bottom, #113311 40%, #557799 80%, #2d3028)';
       else if (trackId === 'ice') thumbBg = 'linear-gradient(to bottom, #88aabb 40%, #ddeeff 80%, #ffffff)';
-      
-      div.style.cssText = `background: rgba(0,0,0,0.8); border: 2px solid ${isSelected ? '#00ffaa' : isUnlocked ? '#aaa' : '#555'}; border-radius: 10px; width: 250px; text-align: center; display: flex; flex-direction: column; box-shadow: 0 5px 15px rgba(0,0,0,0.5); overflow: hidden;`;
-      
-      const thumbHtml = `<div style="height: 100px; width: 100%; background: ${thumbBg}; display: flex; align-items:flex-end; justify-content:center; padding-bottom:10px;">
-         <span style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; font-weight: bold; color:white; font-family: 'Orbitron', sans-serif;">${track.name}</span>
-      </div>`;
-      
+
       let btnHtml = '';
       if (isSelected) {
-        btnHtml = `<button disabled style="background: #008800; border: 1px solid #00ff00; padding: 10px; font-weight: bold; color: white;">SELECTED</button>`;
+        btnHtml = `<button disabled style="background: #008800; border: 1px solid #00ff00; color: white; font-weight: bold;">SELECTED</button>`;
       } else if (isUnlocked) {
-        btnHtml = `<button class="btn-select-track" data-id="${trackId}" style="background: linear-gradient(45deg, #222, #444); border: 1px solid #aaa; padding: 10px; cursor: pointer; color: white; font-weight: bold;">SELECT</button>`;
+        btnHtml = `<button class="btn-select-track" data-id="${trackId}" style="background: linear-gradient(45deg, #222, #444); border: 1px solid #aaa; cursor: pointer; color: white; font-weight: bold;">SELECT</button>`;
       } else {
-        btnHtml = `<button class="btn-buy-track" data-id="${trackId}" data-cost="${track.cost}" style="background: linear-gradient(45deg, #664400, #aa6600); border: 1px solid #ffcc00; padding: 10px; cursor: pointer; color: white; font-weight: bold;">BUY: ${track.cost} COINS</button>`;
+        btnHtml = `<button class="btn-buy-track" data-id="${trackId}" data-cost="${track.cost}" style="background: linear-gradient(45deg, #664400, #aa6600); border: 1px solid #ffcc00; cursor: pointer; color: white; font-weight: bold;">BUY: ${track.cost}</button>`;
       }
       
       div.innerHTML = `
-        ${thumbHtml}
-        <div style="padding: 15px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1;">
-           <p style="margin:0; color: #aaa; font-size: 14px;">Coin Multiplier: <span style="color: #ffcc00; font-weight:bold;">${track.coinMultiplier}x</span></p>
+        <div class="track-card-thumb" style="background: ${thumbBg};">
+          <span style="background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 5px; font-weight: bold; color:white; font-family: 'Orbitron', sans-serif; font-size: clamp(10px, 2vw, 14px);">${track.name}</span>
+        </div>
+        <div class="track-card-body">
+           <p>Multiplier: <span style="color: #ffcc00; font-weight:bold;">${track.coinMultiplier}x</span></p>
            <div style="flex-grow: 1;"></div>
            ${btnHtml}
         </div>
