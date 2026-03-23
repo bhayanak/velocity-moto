@@ -91,22 +91,22 @@ class CrazyGamesWrapper {
   /*  Video ads                                                          */
   /* ------------------------------------------------------------------ */
 
-  requestMidgameAd() {
-    return this._requestAd('midgame');
+    requestMidgameAd(onAdStart, onAdEnd) {
+        return this._requestAd('midgame', onAdStart, onAdEnd);
   }
 
-  requestRewardedAd() {
-    return this._requestAd('rewarded');
+    requestRewardedAd(onAdStart, onAdEnd) {
+        return this._requestAd('rewarded', onAdStart, onAdEnd);
   }
 
-  _requestAd(type) {
+    _requestAd(type, onAdStart, onAdEnd) {
     return new Promise((resolve) => {
       if (!this._ready) { resolve({ success: false, reason: 'sdk_unavailable' }); return; }
       try {
         this._sdk.ad.requestAd(type, {
-          adStarted: () => { /* caller should mute/pause via returned promise */ },
-          adFinished: () => resolve({ success: true }),
-          adError: (err) => resolve({ success: false, reason: err?.code || 'error' }),
+            adStarted: () => { if (onAdStart) onAdStart(); },
+            adFinished: () => { if (onAdEnd) onAdEnd(); resolve({ success: true }); },
+            adError: (err) => { if (onAdEnd) onAdEnd(); resolve({ success: false, reason: err?.code || 'error' }); },
         });
       } catch (e) {
         resolve({ success: false, reason: 'exception' });

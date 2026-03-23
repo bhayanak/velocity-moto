@@ -104,7 +104,7 @@ export class Game {
     updateMissionHUD(this.missionManager.getActiveMissions());
   }
   
-  gameOver() {
+  async gameOver() {
     this.missionManager.updateProgress('crash', 1);
     this.dailyManager.updateDailyTaskProgress('crash', 1);
 
@@ -113,14 +113,43 @@ export class Game {
     this.audio.playCrashSound();
 
     // Save coins & high score
+    const isNewHighScore = this.score > this.saveData.highScore;
     this.saveData.coins += this.sessionCoins;
-    if (this.score > this.saveData.highScore) {
+    if (isNewHighScore) {
       this.saveData.highScore = Math.floor(this.score);
     }
     SaveSystem.save(this.saveData);
 
-    showGameOver(Math.floor(this.score), this.sessionCoins);
     CrazySDK.gameplayStop();
+
+    // Happytime on new high score
+    if (isNewHighScore && this.score > 500) {
+      CrazySDK.happytime();
+    }
+
+    // Fire midgame ad (non-blocking — game over screen shows after ad or immediately if no ad)
+    const muteForAd = () => this.audio.mute();
+    const unmuteAfterAd = () => {
+      const state = SaveSystem.load();
+      if (!state.settings?.muted) this.audio.unmute();
+    };
+    await CrazySDK.requestMidgameAd(muteForAd, unmuteAfterAd);
+
+    showGameOver(Math.floor(this.score), this.sessionCoins);
+
+    // Show game over banner ad
+    CrazySDK.requestBanner('banner-gameover', 728, 90);
+
+    // Show double-coins button if SDK is available
+    const dblBtn = document.getElementById('btn-double-coins');
+    if (dblBtn) {
+      dblBtn.style.display = CrazySDK.isAvailable ? 'block' : 'none';
+      dblBtn.textContent = '🎬 DOUBLE COINS';
+      dblBtn.disabled = false;
+    }
+
+    // Expose session coins for rewarded ad doubling
+    window._lastSessionCoins = this.sessionCoins;
   }
   
   loop(time) {
@@ -194,7 +223,7 @@ export class Game {
     const passedCars = this.trafficManager.update(dt, playerZ, this.director);
     if (passedCars > 0) {
       const completed = this.missionManager.updateProgress('overtake', passedCars);
-      if (completed) showMissionComplete(completed);
+      if (completed) { showMissionComplete(completed); CrazySDK.happytime(); }
       this.dailyManager.updateDailyTaskProgress('overtake', passedCars);
     }
     this.pickupManager.update(dt, playerZ);
@@ -240,7 +269,7 @@ export class Game {
         this.score += 50; // extra score for coins
         this.audio.playCoinSound();
         const completed = this.missionManager.updateProgress('coin', 1);
-        if (completed) showMissionComplete(completed);
+        if (completed) { showMissionComplete(completed); CrazySDK.happytime(); }
         this.dailyManager.updateDailyTaskProgress('coin', 1);
       }
     });
@@ -251,7 +280,7 @@ export class Game {
     this.score += distDelta * 0.1; // 10 points per km/h unit
     
     const distCompleted = this.missionManager.updateProgress('distance', distDelta);
-    if (distCompleted) showMissionComplete(distCompleted);
+    if (distCompleted) { showMissionComplete(distCompleted); CrazySDK.happytime(); }
     this.dailyManager.updateDailyTaskProgress('distance', distDelta);
     
     // Update audio engine pitch

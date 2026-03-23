@@ -23,6 +23,10 @@ A high-speed 3D motorcycle racing game built with Three.js. Dodge traffic, colle
 | Nitro | Space | Nitro button |
 | Camera Toggle | C | — |
 
+---
+## [Play Game](https://bhayanak.github.io/velocity-moto/)
+---
+
 ## License
 
 ISC

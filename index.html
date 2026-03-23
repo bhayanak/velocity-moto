@@ -30,6 +30,13 @@
           <div id="coins" style="color:#ffcc00; font-weight:bold; font-size: 20px;">Coins: <span id="coins-val">0</span></div>
           <div id="nitro-gauge">Nitro: <div class="bar-bg"><div class="bar-fill nitro" id="nitro-fill"></div></div></div>
         </div>
+        <!-- Sound toggle -->
+        <button id="btn-mute" title="Toggle Sound"
+          style="position:absolute; top:10px; right:10px; width:44px; height:44px; border-radius:50%; background:rgba(0,0,0,0.5); border:2px solid rgba(255,255,255,0.3); color:white; font-size:20px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center;">🔊</button>
+        <!-- CG Username -->
+        <div id="cg-user"
+          style="position:absolute; top:10px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.7); font-size:14px; display:none;">
+        </div>
       </div>
       
       <!-- Menus (Main, Game Over, etc.) -->
@@ -65,6 +72,11 @@
         <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; color: rgba(255,255,255,0.7); font-size: 16px; text-shadow: 1px 1px 2px #000; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px;">
           <p style="margin: 0;">CONTROLS: <span style="color:#fff">[WASD]</span> or <span style="color:#fff">Arrows</span> to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[C]</span> View to Steer &amp; Drive &nbsp;&bull;&nbsp; <span style="color:#fff">[SPACE]</span> Nitro &nbsp;&bull;&nbsp; <span style="color:#fff">[SHIFT]</span> Brake</p>
         </div>
+        <!-- Sound toggle on main menu -->
+        <button id="btn-mute-menu" title="Toggle Sound"
+          style="position:absolute; top:20px; right:20px; width:50px; height:50px; border-radius:50%; background:rgba(0,0,0,0.6); border:2px solid rgba(255,255,255,0.3); color:white; font-size:24px; cursor:pointer; z-index:10; display:flex; align-items:center; justify-content:center;">🔊</button>
+        <!-- Banner container for main menu -->
+        <div id="banner-menu" style="position:absolute; bottom:60px; right:20px; width:300px; height:250px;"></div>
       </div>
 
       <div id="menu-garage" class="screen hidden no-bg">
@@ -131,8 +143,13 @@
         </div>
         <div style="display: flex; gap: 20px;">
           <button id="btn-restart" style="padding: 20px 50px; font-size: 28px; background: linear-gradient(45deg, #aa0000, #ff3333); border: 2px solid #ffaaaa; box-shadow: 0 0 20px rgba(255,0,0,0.5);">RETRY RACE</button>
+          <button id="btn-double-coins"
+            style="padding: 20px 50px; font-size: 22px; background: linear-gradient(45deg, #cc9900, #ffcc00); border: 2px solid #ffe066; color: #000; box-shadow: 0 0 20px rgba(255,204,0,0.4); display:none;">🎬
+            DOUBLE COINS</button>
           <button id="btn-to-main" style="padding: 20px 50px; font-size: 24px; background: linear-gradient(45deg, #222, #444); border: 2px solid #666;">MAIN MENU</button>
         </div>
+        <!-- Banner on game over -->
+        <div id="banner-gameover" style="margin-top:20px; width:728px; height:90px;"></div>
       </div>
     </div>
     

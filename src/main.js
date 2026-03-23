@@ -25,13 +25,94 @@ document.addEventListener('DOMContentLoaded', async () => {
   const game = new Game(container);
   CrazySDK.loadingStop();
 
-  // Respect CrazyGames mute setting
+  // ── Audio mute handling ──
+  // Check URL query param ?muteAudio=true (works standalone and with SDK)
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('muteAudio') === 'true') {
+    game.audio.mute();
+  }
+
+  // Respect CrazyGames mute setting (SDK-based)
   const cgSettings = CrazySDK.getSettings();
-  if (cgSettings.muteAudio && game.audio) game.audio.setMasterVolume(0);
+  if (cgSettings.muteAudio && game.audio) game.audio.mute();
   CrazySDK.onSettingsChange((s) => {
-    if (s.muteAudio && game.audio) game.audio.setMasterVolume(0);
+    if (s.muteAudio) game.audio.mute();
+    else game.audio.unmute();
   });
-  
+
+  // Mute toggle UI (syncs both HUD and menu buttons)
+  function updateMuteButtons() {
+    const icon = game.audio.muted ? '🔇' : '🔊';
+    const btnHud = document.getElementById('btn-mute');
+    const btnMenu = document.getElementById('btn-mute-menu');
+    if (btnHud) btnHud.textContent = icon;
+    if (btnMenu) btnMenu.textContent = icon;
+  }
+  updateMuteButtons();
+
+  function handleMuteClick() {
+    game.audio.toggleMute();
+    updateMuteButtons();
+    // Persist mute preference
+    const state = SaveSystem.load();
+    state.settings = state.settings || {};
+    state.settings.muted = game.audio.muted;
+    SaveSystem.save(state);
+  }
+
+  document.getElementById('btn-mute')?.addEventListener('click', handleMuteClick);
+  document.getElementById('btn-mute-menu')?.addEventListener('click', handleMuteClick);
+
+  // Restore saved mute preference
+  const savedState = SaveSystem.load();
+  if (savedState.settings?.muted) {
+    game.audio.mute();
+    updateMuteButtons();
+  }
+
+  // ── CG Username display ──
+  (async () => {
+    const user = await CrazySDK.getUser();
+    if (user?.username) {
+      const el = document.getElementById('cg-user');
+      if (el) {
+        el.textContent = `👤 ${user.username}`;
+        el.style.display = 'block';
+      }
+    }
+  })();
+
+  // ── Device-specific adjustments ──
+  const sysInfo = CrazySDK.getSystemInfo();
+  if (sysInfo?.device?.type === 'mobile') {
+    // Reduce quality for mobile devices
+    if (game.sceneManager?.renderer) {
+      game.sceneManager.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    }
+  }
+
+  // ── Ad helper functions ──
+  function muteForAd() { game.audio.mute(); }
+  function unmuteAfterAd() {
+    const state = SaveSystem.load();
+    if (!state.settings?.muted) game.audio.unmute();
+    updateMuteButtons();
+  }
+
+  // ── Banner management ──
+  function showMenuBanners() {
+    CrazySDK.requestBanner('banner-menu', 300, 250);
+  }
+  function showGameOverBanners() {
+    CrazySDK.requestBanner('banner-gameover', 728, 90);
+  }
+  function clearGameBanners() {
+    CrazySDK.clearAllBanners();
+  }
+
+  // Show banners on initial menu
+  showMenuBanners();
+
   function updateMenuCoins() {
     const state = SaveSystem.load();
     document.getElementById('menu-coins').innerText = state.coins;
@@ -47,6 +128,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('hud-playing').classList.remove('hidden');
     document.getElementById('hud-playing').classList.add('active');
     
+    clearGameBanners();
+
     // Refresh stats from whatever bike is selected
     const state = SaveSystem.load();
     game.applyBikeStats(state.currentBike);
@@ -67,6 +150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('hud-playing').classList.remove('hidden');
     document.getElementById('hud-playing').classList.add('active');
     
+    clearGameBanners();
+    document.getElementById('btn-double-coins').style.display = 'none';
+
     game.reset();
     game.start();
     CrazySDK.gameplayStart();
@@ -80,6 +166,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateMenuCoins();
     game.reset();
     CrazySDK.gameplayStop();
+    clearGameBanners();
+    document.getElementById('btn-double-coins').style.display = 'none';
+    showMenuBanners();
+  });
+
+  // ── Rewarded ad: double coins ──
+  document.getElementById('btn-double-coins')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-double-coins');
+    btn.disabled = true;
+    btn.textContent = 'Loading ad...';
+    const result = await CrazySDK.requestRewardedAd(muteForAd, unmuteAfterAd);
+    if (result.success) {
+      const bonus = window._lastSessionCoins || 0;
+      const state = SaveSystem.load();
+      state.coins += bonus;
+      SaveSystem.save(state);
+      document.getElementById('final-coins').textContent = bonus * 2;
+      btn.textContent = '✅ DOUBLED!';
+      btn.disabled = true;
+      updateMenuCoins();
+    } else {
+      btn.textContent = '🎬 DOUBLE COINS';
+      btn.disabled = false;
+    }
   });
 
   document.getElementById('btn-garage').addEventListener('click', () => {
@@ -87,6 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('menu-start').classList.add('hidden');
     document.getElementById('menu-garage').classList.remove('hidden');
     document.getElementById('menu-garage').classList.add('active');
+    clearGameBanners();
     game.setGarageMode(true);
     renderGarage();
     setTimeout(() => document.querySelectorAll(".btn-select, .btn-buy, .btn-upgrade").forEach(b => b.addEventListener("click", playBtnClick)), 50);
@@ -99,6 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('menu-start').classList.add('active');
     game.setGarageMode(false);
     updateMenuCoins();
+    showMenuBanners();
   });
 
   document.getElementById('btn-missions').addEventListener('click', () => {
@@ -147,6 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (reward > 0) {
             updateMenuCoins();
             renderMissions(); // re-render to show next tier mission
+            CrazySDK.happytime();
           }
         });
       });

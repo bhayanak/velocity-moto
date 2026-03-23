@@ -11,6 +11,32 @@ export class AudioManager {
     this.engineGain.gain.value = 0;
     
     this.isPlaying = false;
+    this._muted = false;
+    this._volume = 1.0;
+  }
+
+  get muted() { return this._muted; }
+
+  setMasterVolume(vol) {
+    this._volume = vol;
+    this.masterGain.gain.setTargetAtTime(vol, this.ctx.currentTime, 0.05);
+  }
+
+  toggleMute() {
+    this._muted = !this._muted;
+    this.setMasterVolume(this._muted ? 0 : this._volume || 1.0);
+    if (this._muted) this._volume = 1.0; // remember to restore to 1 on unmute
+    return this._muted;
+  }
+
+  mute() {
+    this._muted = true;
+    this.masterGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
+  }
+
+  unmute() {
+    this._muted = false;
+    this.masterGain.gain.setTargetAtTime(this._volume || 1.0, this.ctx.currentTime, 0.05);
   }
   
   startEngine() {
