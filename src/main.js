@@ -90,34 +90,54 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('menu-start').classList.add('hidden');
     document.getElementById('menu-missions').classList.remove('hidden');
     document.getElementById('menu-missions').classList.add('active');
-    
-    // Update mission board UI
+    renderMissions();
+  });
+
+  function renderMissions() {
     const state = SaveSystem.load();
     const container = document.getElementById('missions-list-container');
     container.innerHTML = '';
 
-    const activeMissions = game.missionManager ? game.missionManager.getActiveMissions() : state.activeMissions;
-    if (activeMissions && activeMissions.length > 0) {
+    const activeMissions = game.missionManager ? game.missionManager.getActiveMissions() : (state.activeMissions || []);
+    if (activeMissions.length > 0) {
       activeMissions.forEach(m => {
         const progress = Math.floor(m.progress);
         const target = m.target;
         const pct = Math.min(100, Math.floor((progress / target) * 100));
+        const done = m.completed;
 
-        container.innerHTML += `
-          <div style="background: rgba(0,0,0,0.5); border: 1px solid #ff00ff; padding: 20px; border-radius: 10px; position: relative;">
-            <p style="font-size: 24px; color: #00ffff; margin: 0 0 10px 0; text-align: left;">${m.title}</p>
-            <div style="width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; position: relative;">
-              <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, #ff00ff, #00ffff); transition: width 0.3s;"></div>
-              <div style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:14px; font-weight:bold; text-shadow: 1px 1px 2px #000;">${progress} / ${target}</div>
-            </div>
-            <p style="margin: 0; color: #ffcc00; font-size: 18px; margin-top: 10px; text-align: right;">Reward: ${m.rewardCoins} Coins</p>
+        const div = document.createElement('div');
+        div.style.cssText = 'background: rgba(0,0,0,0.5); border: 1px solid ' + (done ? '#00ff88' : '#ff00ff') + '; padding: 20px; border-radius: 10px; position: relative;';
+        div.innerHTML = `
+          <p style="font-size: 24px; color: ${done ? '#00ff88' : '#00ffff'}; margin: 0 0 10px 0; text-align: left;">${m.title}</p>
+          <div style="width: 100%; height: 20px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; position: relative;">
+            <div style="width: ${pct}%; height: 100%; background: ${done ? 'linear-gradient(90deg, #00ff88, #00cc66)' : 'linear-gradient(90deg, #ff00ff, #00ffff)'}; transition: width 0.3s;"></div>
+            <div style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:14px; font-weight:bold; text-shadow: 1px 1px 2px #000;">${done ? 'COMPLETE!' : progress + ' / ' + target}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px;">
+            <p style="margin: 0; color: #ffcc00; font-size: 18px;">Reward: ${m.rewardCoins} Coins</p>
+            ${done ? '<button class="btn-redeem" data-idref="' + m.idRef + '" style="background: linear-gradient(45deg, #00cc66, #00ff88); color: #000; border: none; padding: 10px 24px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer;">REDEEM</button>' : '<span style="color: #888; font-size: 14px;">In Progress</span>'}
           </div>
         `;
+        container.appendChild(div);
+      });
+
+      // Attach redeem handlers
+      container.querySelectorAll('.btn-redeem').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          playBtnClick();
+          const idRef = parseFloat(e.target.getAttribute('data-idref'));
+          const reward = game.missionManager.redeemMission(idRef);
+          if (reward > 0) {
+            updateMenuCoins();
+            renderMissions(); // re-render to show next tier mission
+          }
+        });
       });
     } else {
       container.innerHTML = '<div style="color:white; font-size:24px;">No active missions</div>';
     }
-  });
+  }
 
   document.getElementById('btn-missions-back').addEventListener('click', () => {
     document.getElementById('menu-missions').classList.remove('active');
@@ -175,25 +195,37 @@ document.addEventListener('DOMContentLoaded', () => {
       <div style="width: 100%; margin-bottom:15px;">
         <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
           <span style="text-align: left;">TOP SPEED</span>
-          <span>${bike.maxSpeed + (currentUpgrade * 5)} km/h</span>
+          <span>${Math.round(bike.topSpeed * (1 + currentUpgrade * 0.05))} km/h</span>
         </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.topSpeed) * (1 + (currentUpgrade * 0.05))) / 300) * 100}%;"></div></div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.topSpeed * (1 + currentUpgrade * 0.05)) / 250 * 100)}%;"></div></div>
       </div>
       
       <div style="width: 100%; margin-bottom:15px;">
         <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
           <span style="text-align: left;">ACCELERATION</span>
-          <span>${(bike.acceleration + (currentUpgrade * 0.5)).toFixed(1)}</span>
+          <span>${(bike.acceleration * (1 + currentUpgrade * 0.05)).toFixed(1)}</span>
         </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.acceleration) * (1 + (currentUpgrade * 0.05))) / 70) * 100}%;"></div></div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.acceleration * (1 + currentUpgrade * 0.05)) / 60 * 100)}%;"></div></div>
       </div>
 
       <div style="width: 100%; margin-bottom:15px;">
         <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
           <span style="text-align: left;">HANDLING</span>
-          <span>${(bike.handling + (currentUpgrade * 0.05)).toFixed(2)}</span>
+          <span>${(bike.handling * (1 + currentUpgrade * 0.02)).toFixed(1)}</span>
         </div>
-        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${(((bike.handling) * (1 + (currentUpgrade * 0.02))) / 30) * 100}%;"></div></div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.handling * (1 + currentUpgrade * 0.02)) / 28 * 100)}%;"></div></div>
+      </div>
+
+      <div style="width: 100%; margin-bottom:15px;">
+        <div style="display:flex; justify-content:space-between; color:rgba(255,255,255,0.7);">
+          <span style="text-align: left;">FUEL CAPACITY</span>
+          <span>${(bike.fuelCapacity * (1 + currentUpgrade * 0.03)).toFixed(2)}</span>
+        </div>
+        <div class="bar-bg" style="width: 100%; background:rgba(255,255,255,0.1);"><div class="bar-fill" style="width: ${Math.min(100, (bike.fuelCapacity * (1 + currentUpgrade * 0.03)) / 2.5 * 100)}%; background: #ffcc00;"></div></div>
+      </div>
+
+      <div style="margin-bottom:15px; text-align:center; color:rgba(255,255,255,0.5); font-size:14px;">
+        UPGRADE LEVEL: ${currentUpgrade} / ${maxUpgrades}
       </div>
 
       ${btnHtml}

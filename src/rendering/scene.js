@@ -194,33 +194,27 @@ export class SceneManager {
       this.camera.position.x = playerPosition.x;
       this.camera.position.y = playerPosition.y + 2.5;
       this.camera.position.z = playerPosition.z + 4.5;
-
-      // Look slighty down at the bike
       this.camera.lookAt(playerPosition.x, playerPosition.y + 0.5, playerPosition.z - 5);
-
-      this.camera.rotation.z = -leanAngle * 0.2; // Less roll in 3rd person
+      this.camera.rotation.z = -leanAngle * 0.2;
+      // Show rider in third person
+      if (this._riderGroup) this._riderGroup.visible = true;
     } else {
-      // True First Person view: inside the helmet looking at windshield & dash
+      // First person: rider's eye view
       this.camera.position.x = playerPosition.x;
       this.camera.position.y = playerPosition.y + 1.1;
       this.camera.position.z = playerPosition.z + 0.05;
+      this.camera.lookAt(playerPosition.x, playerPosition.y + 0.8, playerPosition.z - 3.0);
 
-      // Look slightly forward and down at the dash
-      this.camera.lookAt(playerPosition.x, playerPosition.y + 0.8, playerPosition.z - 2.0);
-
-      // Add high-speed camera shake and head bobble
       if (speed > 100) {
         const shakeIntensity = (speed - 100) * 0.0002;
         this.camera.position.x += (Math.random() - 0.5) * shakeIntensity;
         this.camera.position.y += (Math.random() - 0.5) * shakeIntensity;
       }
-
-      // Normal head bobble based on distance traveled
       const bobble = Math.sin(time * 15) * (speed * 0.0001);
       this.camera.position.y += bobble;
-
-      // Roll camera based on lean angle
       this.camera.rotation.z = -leanAngle * 0.5;
+      // Hide rider in first person so you don't see through their back
+      if (this._riderGroup) this._riderGroup.visible = false;
     }
   }
   

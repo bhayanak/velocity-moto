@@ -54,29 +54,27 @@ export class Game {
 
   applyBikeStats(bikeId) {
     const stats = BIKES[bikeId] || BIKES['starter'];
-    
-    // Apply upgrades multiplier
+
     const upgrades = this.saveData.upgrades || {};
     const level = upgrades[bikeId] || 0;
-    
-    // Each upgrade adds ~5% performance
     const multi = 1 + (level * 0.05);
 
     this.player.topSpeed = stats.topSpeed * multi;
     this.player.acceleration = stats.acceleration * multi;
-    this.player.handling = stats.handling * (1 + (level * 0.02)); // Handling improves slower
+    this.player.handling = stats.handling * (1 + (level * 0.02));
 
-    // Set color on player's tank mesh
-    if (this.player.bikeGroup && this.player.tank) {
-      if (level >= stats.maxUpgrades) {
-         // Ultimate upgrade color shift (gold/metallic)
-         this.player.tank.material.color.setHex(0xffcc00);
-         this.player.tank.material.metalness = 0.8;
-      } else {
-         this.player.tank.material.color.setHex(stats.color);
-         this.player.tank.material.metalness = 0.2;
-      }
+    // Determine color: custom > default
+    let colorHex = stats.color;
+    if (this.saveData.customColors && this.saveData.customColors[bikeId]) {
+      const hex = this.saveData.customColors[bikeId].replace('#', '');
+      colorHex = parseInt(hex, 16);
     }
+
+    // Rebuild the full 3D bike mesh with proper shape, color, and upgrade visuals
+    this.player.buildBikeMesh(bikeId, level, colorHex);
+
+    // Pass rider reference to scene manager for first-person visibility toggle
+    if (this.sceneManager) this.sceneManager._riderGroup = this.player.riderGroup;
   }
   
   start() {
@@ -135,8 +133,8 @@ export class Game {
   }
 
   previewBike(bikeId) {
-    // this.player.bikeGroup.clear(); // We just apply stats to recolor
-
+    // Reload save data to pick up freshly set custom colors
+    this.saveData = SaveSystem.load();
     this.applyBikeStats(bikeId);
   }
 
@@ -189,8 +187,8 @@ export class Game {
     this.roadManager.update(dt, playerZ);
     const passedCars = this.trafficManager.update(dt, playerZ, this.director);
     if (passedCars > 0) {
-      const rw = this.missionManager.updateProgress('overtake', passedCars);
-      if (rw) showMissionComplete(rw);
+      const completed = this.missionManager.updateProgress('overtake', passedCars);
+      if (completed) showMissionComplete(completed);
     }
     this.pickupManager.update(dt, playerZ);
     this.hazardManager.update(dt, playerZ);
@@ -234,8 +232,8 @@ export class Game {
         this.sessionCoins += (pickup.reward * mult);
         this.score += 50; // extra score for coins
         this.audio.playCoinSound();
-        const reward = this.missionManager.updateProgress('coin', 1);
-        if (reward) showMissionComplete(reward);
+        const completed = this.missionManager.updateProgress('coin', 1);
+        if (completed) showMissionComplete(completed);
       }
     });
 
@@ -244,8 +242,8 @@ export class Game {
     this.distance += distDelta;
     this.score += distDelta * 0.1; // 10 points per km/h unit
     
-    const distReward = this.missionManager.updateProgress('distance', distDelta);
-    if(distReward) showMissionComplete(distReward);
+    const distCompleted = this.missionManager.updateProgress('distance', distDelta);
+    if (distCompleted) showMissionComplete(distCompleted);
     
     // Update audio engine pitch
     this.audio.updateEngine(this.player.speed, this.player.topSpeed, (inputState.nitro && this.player.nitro > 0 && this.player.speed > 20));

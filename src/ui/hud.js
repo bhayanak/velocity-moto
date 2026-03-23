@@ -39,10 +39,10 @@ export function updateMissionHUD(missions) {
   missionText.innerText = `📍 ${mission.title} (${progressText}) (+${missions.length - 1})`;
 }
 
-export function showMissionComplete(reward) {
+export function showMissionComplete(count) {
   const popup = document.createElement('div');
   popup.className = 'mission-complete-popup';
-  popup.innerText = `🎯 MISSION COMPLETE!\n+${reward} Coins`;
+  popup.innerText = `🎯 MISSION COMPLETE!\nVisit Missions to redeem`;
   document.body.appendChild(popup);
   
   // Animate and remove
