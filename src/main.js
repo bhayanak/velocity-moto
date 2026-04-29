@@ -121,8 +121,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const state = SaveSystem.load();
     document.getElementById('menu-coins').innerText = state.coins;
     document.getElementById('garage-coins').innerText = state.coins;
+    const tracksCoins = document.getElementById('tracks-coins');
+    if (tracksCoins) tracksCoins.innerText = state.coins;
   }
   updateMenuCoins();
+
+  window.addEventListener('secret-coin-cheat', (event) => {
+    const amount = event.detail?.amount || 10000;
+    const totalCoins = SaveSystem.addCoins(amount);
+
+    updateMenuCoins();
+
+    if (game.audio) game.audio.playCoinSound();
+
+    const missionText = document.getElementById('mission-text');
+    if (missionText) {
+      missionText.innerText = `CHEAT: +${amount} coins (bank ${totalCoins})`;
+    }
+  });
 
   // ── Camera toggle button (for mobile) ──
   document.getElementById('btn-camera')?.addEventListener('click', () => {
